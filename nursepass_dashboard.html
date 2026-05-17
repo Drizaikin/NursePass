@@ -1,0 +1,2510 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>NursePass Kenya — Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Nunito:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+<style>
+/* ─────────────────────────────────────────────
+   DESIGN TOKENS (light mode)
+───────────────────────────────────────────── */
+:root{
+  --teal:#08514F;--teal-mid:#0A6865;--teal-light:#E8F5F4;--teal-xlight:#F0FAF9;
+  --amber:#F5A623;--amber-light:#FFF3DC;--amber-dark:#C47F0A;
+  --cream:#FFFDF8;--cream-warm:#FFF5E6;
+  --dark:#0F1C1C;--dark-mid:#1E3535;--dark-soft:#2D4A4A;
+  --mid:#4A6565;--light:#7A9E9E;--border:#D0E6E5;
+  --white:#FFFFFF;--red:#E84545;--green:#1A9E75;
+
+  /* ── dashboard tokens ── */
+  --sidebar-bg:#0F1C1C;--sidebar-text:rgba(255,255,255,.65);
+  --sidebar-active:rgba(245,166,35,.12);--sidebar-active-text:var(--amber);
+  --main-bg:#F3F8F7;--card-bg:var(--white);
+  --topbar-bg:var(--white);--topbar-border:var(--border);
+
+  --ff-head:'Syne',sans-serif;--ff-body:'Nunito',sans-serif;
+  --shadow:0 4px 24px rgba(8,81,79,.10);--shadow-lg:0 12px 48px rgba(8,81,79,.16);
+  --r:12px;--r-sm:8px;--r-lg:20px;--r-full:999px;
+}
+
+/* ─────────────────────────────────────────────
+   DARK MODE OVERRIDES
+───────────────────────────────────────────── */
+body.dark{
+  --cream:#0A1515;--main-bg:#080F0F;--card-bg:#111E1E;
+  --white:#111E1E;--dark:#E8F5F4;--dark-mid:#E0EFEE;
+  --mid:#7A9E9E;--border:#1E3535;--light:#3A6060;
+  --teal-light:rgba(8,81,79,.25);--teal-xlight:rgba(8,81,79,.15);
+  --amber-light:rgba(245,166,35,.12);
+  --topbar-bg:#111E1E;--topbar-border:#1E3535;
+  --shadow:0 4px 24px rgba(0,0,0,.35);
+}
+body.dark .sidebar-nav a{color:rgba(255,255,255,.55);}
+body.dark .card{background:var(--card-bg);border-color:var(--border);}
+body.dark .stat-card{background:var(--card-bg);border-color:var(--border);}
+body.dark .badge-item{border-color:var(--border);}
+body.dark .group-card{border-color:var(--border);}
+body.dark .fc-card{background:var(--card-bg);}
+body.dark .flashcard-inner .fc-front,
+body.dark .flashcard-inner .fc-back{background:var(--card-bg);border-color:var(--border);}
+body.dark .leaderboard-row{border-color:var(--border);}
+body.dark .practice-q-card{background:var(--card-bg);}
+body.dark .exam-option-dark{background:rgba(255,255,255,.04);border-color:rgba(255,255,255,.1);}
+body.dark .setting-row{border-color:var(--border);}
+
+*{margin:0;padding:0;box-sizing:border-box;}
+html{font-size:16px;scroll-behavior:smooth;}
+body{font-family:var(--ff-body);background:var(--main-bg);color:var(--dark);line-height:1.6;overflow-x:hidden;transition:background .25s,color .25s;}
+
+h1,h2,h3,h4,h5{font-family:var(--ff-head);line-height:1.18;}
+a{text-decoration:none;color:inherit;}
+button{font-family:var(--ff-body);cursor:pointer;}
+
+/* ─────────────────────────────────────────────
+   APP LAYOUT
+───────────────────────────────────────────── */
+.app-shell{display:flex;min-height:100vh;}
+
+/* ─────────────────────────────────────────────
+   SIDEBAR
+───────────────────────────────────────────── */
+.sidebar{
+  width:240px;min-width:240px;background:var(--sidebar-bg);
+  display:flex;flex-direction:column;
+  position:fixed;top:0;left:0;bottom:0;z-index:200;
+  transition:transform .3s ease;
+}
+.sidebar-logo{
+  display:flex;align-items:center;gap:10px;
+  padding:20px 20px 16px;border-bottom:1px solid rgba(255,255,255,.08);
+}
+.logo-mark{
+  width:36px;height:36px;background:var(--teal);border-radius:10px;
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;
+}
+.logo-mark svg{width:20px;height:20px;fill:none;stroke:var(--amber);stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round;}
+.logo-text{font-family:var(--ff-head);font-size:18px;font-weight:800;color:#fff;}
+.logo-text span{color:var(--amber);}
+
+.sidebar-user{
+  padding:16px 20px;border-bottom:1px solid rgba(255,255,255,.08);
+  display:flex;align-items:center;gap:10px;
+}
+.su-avatar{
+  width:38px;height:38px;background:var(--teal);border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-family:var(--ff-head);font-size:14px;font-weight:800;color:var(--amber);
+  flex-shrink:0;
+}
+.su-name{font-size:13px;font-weight:700;color:#fff;}
+.su-cadre{font-size:11px;color:rgba(255,255,255,.45);margin-top:1px;}
+
+.sidebar-nav{padding:12px 0;flex:1;overflow-y:auto;}
+.nav-section-label{
+  font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;
+  color:rgba(255,255,255,.3);padding:8px 20px 4px;
+}
+.sidebar-nav a{
+  display:flex;align-items:center;gap:12px;
+  padding:11px 20px;font-size:13px;font-weight:600;
+  color:var(--sidebar-text);transition:all .18s;border-left:3px solid transparent;
+  cursor:pointer;
+}
+.sidebar-nav a svg{width:17px;height:17px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0;opacity:.75;}
+.sidebar-nav a:hover{background:rgba(255,255,255,.06);color:#fff;}
+.sidebar-nav a.active{
+  background:var(--sidebar-active);color:var(--amber);
+  border-left-color:var(--amber);
+}
+.sidebar-nav a.active svg{opacity:1;}
+
+.sidebar-streak{
+  margin:12px 16px;background:rgba(245,166,35,.1);
+  border:1px solid rgba(245,166,35,.25);border-radius:var(--r);
+  padding:12px 14px;
+}
+.streak-row{display:flex;align-items:center;gap:8px;}
+.streak-fire{font-size:22px;}
+.streak-count{font-family:var(--ff-head);font-size:22px;font-weight:800;color:var(--amber);}
+.streak-label{font-size:11px;color:rgba(255,255,255,.5);margin-top:2px;}
+.streak-dots{display:flex;gap:5px;margin-top:10px;}
+.streak-dot{width:20px;height:20px;border-radius:50%;background:rgba(255,255,255,.1);display:flex;align-items:center;justify-content:center;font-size:10px;}
+.streak-dot.done{background:rgba(245,166,35,.3);color:var(--amber);}
+.streak-dot.today{background:var(--amber);color:var(--dark);}
+
+.sidebar-plan{
+  padding:14px 16px;border-top:1px solid rgba(255,255,255,.08);
+}
+.plan-pill{
+  display:flex;align-items:center;justify-content:space-between;
+  background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);
+  border-radius:var(--r);padding:10px 14px;
+}
+.plan-pill-name{font-size:12px;font-weight:700;color:#fff;}
+.plan-pill-days{font-size:11px;color:rgba(255,255,255,.45);}
+.plan-pill-badge{font-size:10px;font-weight:800;background:var(--amber);color:var(--dark);padding:2px 8px;border-radius:var(--r-full);}
+
+/* ─────────────────────────────────────────────
+   MAIN AREA
+───────────────────────────────────────────── */
+.main-area{
+  margin-left:240px;flex:1;display:flex;flex-direction:column;min-height:100vh;
+}
+
+/* ─────────────────────────────────────────────
+   TOP BAR
+───────────────────────────────────────────── */
+.topbar-dash{
+  background:var(--topbar-bg);border-bottom:1px solid var(--topbar-border);
+  padding:0 28px;height:64px;display:flex;align-items:center;
+  justify-content:space-between;position:sticky;top:0;z-index:100;
+  transition:background .25s;
+}
+.topbar-left{display:flex;align-items:center;gap:8px;}
+.breadcrumb{font-size:14px;color:var(--mid);}
+.breadcrumb strong{color:var(--dark);font-weight:700;}
+.topbar-right{display:flex;align-items:center;gap:14px;}
+
+.topbar-streak-badge{
+  display:flex;align-items:center;gap:6px;
+  background:var(--amber-light);border:1px solid rgba(245,166,35,.4);
+  border-radius:var(--r-full);padding:6px 12px;
+  font-size:13px;font-weight:700;color:var(--amber-dark);
+}
+
+.xp-badge{
+  display:flex;align-items:center;gap:6px;
+  background:var(--teal-light);border:1px solid rgba(8,81,79,.2);
+  border-radius:var(--r-full);padding:6px 12px;
+  font-size:13px;font-weight:700;color:var(--teal);
+}
+
+.icon-btn{
+  width:38px;height:38px;background:transparent;
+  border:1.5px solid var(--border);border-radius:var(--r-sm);
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer;transition:all .18s;position:relative;
+}
+.icon-btn:hover{border-color:var(--teal);background:var(--teal-light);}
+.icon-btn svg{width:18px;height:18px;fill:none;stroke:var(--mid);stroke-width:2;stroke-linecap:round;stroke-linejoin:round;}
+.notif-dot{
+  position:absolute;top:6px;right:6px;width:7px;height:7px;
+  background:var(--red);border-radius:50%;border:1.5px solid var(--white);
+}
+
+/* dark mode toggle */
+.dark-toggle{
+  display:flex;align-items:center;gap:8px;
+  background:var(--teal-light);border:1px solid var(--border);
+  border-radius:var(--r-full);padding:6px 12px;cursor:pointer;
+  font-size:12px;font-weight:700;color:var(--teal);transition:all .18s;
+}
+.dark-toggle:hover{background:var(--teal);color:#fff;}
+.dark-toggle .toggle-track{
+  width:28px;height:16px;background:var(--border);border-radius:var(--r-full);
+  position:relative;transition:background .2s;margin-left:4px;
+}
+.dark-toggle .toggle-thumb{
+  width:12px;height:12px;background:#fff;border-radius:50%;
+  position:absolute;top:2px;left:2px;transition:transform .2s;
+}
+body.dark .dark-toggle{background:rgba(8,81,79,.3);color:var(--teal-light);}
+body.dark .toggle-track{background:var(--teal);}
+body.dark .toggle-thumb{transform:translateX(12px);}
+
+.topbar-avatar{
+  width:38px;height:38px;background:var(--teal);border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-family:var(--ff-head);font-size:14px;font-weight:800;color:var(--amber);
+  cursor:pointer;flex-shrink:0;
+}
+
+/* ─────────────────────────────────────────────
+   CONTENT AREA
+───────────────────────────────────────────── */
+.content{padding:28px;flex:1;}
+.view{display:none;}
+.view.active{display:block;}
+
+/* ─────────────────────────────────────────────
+   SHARED CARD COMPONENTS
+───────────────────────────────────────────── */
+.card{
+  background:var(--card-bg);border:1px solid var(--border);
+  border-radius:var(--r-lg);padding:24px;transition:background .25s,border-color .25s;
+}
+.card-sm{padding:16px 20px;}
+.card-title{font-family:var(--ff-head);font-size:15px;font-weight:800;color:var(--dark);margin-bottom:4px;}
+.card-sub{font-size:13px;color:var(--mid);}
+
+.page-header{margin-bottom:24px;}
+.page-title{font-size:24px;font-weight:800;color:var(--dark);margin-bottom:4px;}
+.page-sub{font-size:14px;color:var(--mid);}
+
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
+.grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;}
+.grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;}
+
+.btn{
+  display:inline-flex;align-items:center;gap:8px;
+  font-family:var(--ff-body);font-weight:700;font-size:14px;
+  padding:11px 22px;border-radius:var(--r-full);border:none;cursor:pointer;
+  transition:all .2s;
+}
+.btn-primary{background:var(--amber);color:var(--dark);}
+.btn-primary:hover{background:var(--amber-dark);color:#fff;transform:translateY(-1px);}
+.btn-dark{background:var(--teal);color:#fff;}
+.btn-dark:hover{background:var(--teal-mid);}
+.btn-outline{background:transparent;border:2px solid var(--teal);color:var(--teal);}
+.btn-outline:hover{background:var(--teal);color:#fff;}
+.btn-sm{font-size:12px;padding:7px 16px;}
+.btn-ghost{background:transparent;border:1.5px solid var(--border);color:var(--mid);}
+.btn-ghost:hover{border-color:var(--teal);color:var(--teal);}
+
+.tag{display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:700;padding:3px 10px;border-radius:var(--r-full);}
+.tag-green{background:#DFFBF1;color:#0F6E56;}
+.tag-amber{background:var(--amber-light);color:var(--amber-dark);}
+.tag-red{background:#FFE8E8;color:#C0392B;}
+.tag-teal{background:var(--teal-light);color:var(--teal);}
+.tag-purple{background:#F0EAFF;color:#7C3AED;}
+
+/* progress bar */
+.prog-track{width:100%;height:8px;background:var(--border);border-radius:var(--r-full);overflow:hidden;}
+.prog-fill{height:100%;border-radius:var(--r-full);transition:width .8s ease;}
+.prog-green{background:var(--green);}
+.prog-teal{background:var(--teal);}
+.prog-amber{background:var(--amber);}
+.prog-red{background:var(--red);}
+
+/* ═══════════════════════════════════════════
+   VIEW 1 — HOME DASHBOARD
+═══════════════════════════════════════════ */
+.welcome-banner{
+  background:linear-gradient(135deg,var(--dark) 0%,var(--teal) 60%,#0F6E56 100%);
+  color:#fff;border-radius:var(--r-lg);padding:28px 32px;
+  display:flex;justify-content:space-between;align-items:center;
+  position:relative;overflow:hidden;margin-bottom:20px;
+}
+.welcome-banner::before{
+  content:'';position:absolute;top:-40px;right:-40px;
+  width:200px;height:200px;border-radius:50%;
+  background:rgba(245,166,35,.08);pointer-events:none;
+}
+.wb-left h2{font-size:22px;font-weight:800;margin-bottom:4px;}
+.wb-left p{font-size:14px;color:rgba(255,255,255,.72);margin-bottom:16px;}
+.wb-actions{display:flex;gap:10px;flex-wrap:wrap;}
+.wb-right{text-align:right;flex-shrink:0;}
+.wb-exam-label{font-size:11px;color:rgba(255,255,255,.55);text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px;}
+.wb-countdown{display:flex;gap:8px;}
+.wb-cd-unit{
+  background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);
+  border-radius:var(--r-sm);padding:8px 12px;text-align:center;min-width:52px;
+}
+.wb-cd-num{display:block;font-family:var(--ff-head);font-size:22px;font-weight:800;color:var(--amber);}
+.wb-cd-sub{display:block;font-size:9px;color:rgba(255,255,255,.5);text-transform:uppercase;letter-spacing:.06em;}
+
+.stat-card{
+  background:var(--card-bg);border:1px solid var(--border);
+  border-radius:var(--r-lg);padding:20px;display:flex;flex-direction:column;
+  gap:4px;transition:all .2s;
+}
+.stat-card:hover{box-shadow:var(--shadow);transform:translateY(-2px);}
+.stat-label{font-size:12px;color:var(--mid);font-weight:600;text-transform:uppercase;letter-spacing:.05em;}
+.stat-value{font-family:var(--ff-head);font-size:28px;font-weight:800;color:var(--dark);}
+.stat-delta{font-size:12px;font-weight:700;}
+.delta-up{color:var(--green);}
+.delta-down{color:var(--red);}
+.stat-icon{
+  width:40px;height:40px;border-radius:var(--r-sm);
+  display:flex;align-items:center;justify-content:center;margin-bottom:4px;
+}
+.stat-icon svg{width:20px;height:20px;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;}
+.si-teal{background:var(--teal-light);}
+.si-teal svg{stroke:var(--teal);}
+.si-amber{background:var(--amber-light);}
+.si-amber svg{stroke:var(--amber-dark);}
+.si-green{background:#DFFBF1;}
+.si-green svg{stroke:var(--green);}
+.si-red{background:#FFE8E8;}
+.si-red svg{stroke:var(--red);}
+
+.daily-challenge-card{
+  background:linear-gradient(135deg,var(--amber-light) 0%,#FFF9EE 100%);
+  border:1.5px solid rgba(245,166,35,.35);border-radius:var(--r-lg);padding:20px;
+}
+.dc-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px;}
+.dc-label{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.1em;color:var(--amber-dark);margin-bottom:4px;}
+.dc-title{font-family:var(--ff-head);font-size:16px;font-weight:800;color:var(--dark);}
+.dc-xp{background:var(--amber);color:var(--dark);font-size:11px;font-weight:800;padding:4px 10px;border-radius:var(--r-full);}
+.dc-progress-row{display:flex;align-items:center;gap:12px;}
+.dc-pct{font-size:13px;font-weight:700;color:var(--amber-dark);min-width:32px;}
+
+.ai-rec-card{
+  background:var(--card-bg);border:1px solid var(--border);
+  border-radius:var(--r-lg);padding:20px;
+}
+.ai-rec-header{display:flex;align-items:center;gap:10px;margin-bottom:14px;}
+.ai-icon{width:36px;height:36px;background:var(--teal-light);border-radius:var(--r-sm);display:flex;align-items:center;justify-content:center;}
+.ai-icon svg{width:18px;height:18px;fill:none;stroke:var(--teal);stroke-width:2;stroke-linecap:round;}
+.ai-rec-title{font-family:var(--ff-head);font-size:14px;font-weight:800;color:var(--dark);}
+.ai-rec-sub{font-size:12px;color:var(--mid);}
+.ai-unit-list{list-style:none;display:flex;flex-direction:column;gap:10px;}
+.ai-unit-row{display:flex;align-items:center;gap:10px;}
+.ai-unit-name{font-size:13px;color:var(--dark);flex:1;font-weight:600;}
+.ai-unit-pct{font-size:12px;font-weight:700;min-width:36px;text-align:right;}
+.ai-crit{color:var(--red);}
+.ai-warn{color:var(--amber-dark);}
+.ai-good{color:var(--green);}
+
+.recent-activity{list-style:none;display:flex;flex-direction:column;gap:0;}
+.activity-row{
+  display:flex;align-items:center;gap:12px;padding:12px 0;
+  border-bottom:1px solid var(--border);
+}
+.activity-row:last-child{border-bottom:none;}
+.act-icon{
+  width:36px;height:36px;border-radius:var(--r-sm);
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;
+}
+.act-icon svg{width:16px;height:16px;fill:none;stroke-width:2;stroke-linecap:round;}
+.act-text{flex:1;font-size:13px;color:var(--dark);font-weight:600;}
+.act-sub{font-size:11px;color:var(--mid);}
+.act-score{font-family:var(--ff-head);font-size:14px;font-weight:800;}
+
+/* ═══════════════════════════════════════════
+   VIEW 2 — PRACTICE MCQs
+═══════════════════════════════════════════ */
+.practice-layout{display:grid;grid-template-columns:260px 1fr;gap:20px;}
+.unit-filter-panel{
+  background:var(--card-bg);border:1px solid var(--border);
+  border-radius:var(--r-lg);padding:20px;height:fit-content;
+  position:sticky;top:88px;
+}
+.uf-title{font-family:var(--ff-head);font-size:13px;font-weight:800;color:var(--dark);margin-bottom:14px;text-transform:uppercase;letter-spacing:.06em;}
+.unit-filter-list{list-style:none;display:flex;flex-direction:column;gap:4px;}
+.ufl-item{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:8px 12px;border-radius:var(--r-sm);cursor:pointer;
+  font-size:13px;font-weight:600;color:var(--mid);transition:.15s;
+}
+.ufl-item:hover{background:var(--teal-light);color:var(--teal);}
+.ufl-item.active{background:var(--teal-light);color:var(--teal);}
+.ufl-count{font-size:11px;background:var(--border);padding:2px 7px;border-radius:var(--r-full);color:var(--mid);}
+.ufl-item.active .ufl-count{background:var(--teal);color:#fff;}
+.uf-divider{height:1px;background:var(--border);margin:12px 0;}
+.uf-mode-title{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:var(--mid);margin-bottom:10px;}
+.mode-btn{
+  display:flex;align-items:center;gap:8px;width:100%;
+  padding:9px 12px;border-radius:var(--r-sm);border:1.5px solid var(--border);
+  background:transparent;font-size:13px;font-weight:600;color:var(--mid);
+  cursor:pointer;margin-bottom:7px;transition:.15s;
+}
+.mode-btn:hover,.mode-btn.active{border-color:var(--teal);color:var(--teal);background:var(--teal-light);}
+.mode-btn svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;}
+
+.practice-q-panel{display:flex;flex-direction:column;gap:16px;}
+.practice-progress-bar{
+  background:var(--card-bg);border:1px solid var(--border);
+  border-radius:var(--r-lg);padding:16px 20px;
+  display:flex;align-items:center;gap:16px;
+}
+.ppb-text{font-size:13px;font-weight:600;color:var(--mid);white-space:nowrap;}
+.ppb-track{flex:1;height:8px;background:var(--border);border-radius:var(--r-full);overflow:hidden;}
+.ppb-fill{height:100%;background:var(--teal);border-radius:var(--r-full);width:34%;}
+.ppb-timer{
+  display:flex;align-items:center;gap:6px;font-family:var(--ff-head);
+  font-size:15px;font-weight:800;color:var(--teal);
+  background:var(--teal-light);padding:6px 14px;border-radius:var(--r-full);white-space:nowrap;
+}
+.ppb-timer svg{width:15px;height:15px;stroke:var(--teal);stroke-width:2;fill:none;}
+
+.practice-q-card{
+  background:var(--card-bg);border:1px solid var(--border);
+  border-radius:var(--r-lg);padding:28px;
+}
+.q-meta{font-size:11px;color:var(--mid);font-weight:700;text-transform:uppercase;letter-spacing:.06em;margin-bottom:14px;display:flex;align-items:center;gap:12px;}
+.q-flag-btn{
+  background:none;border:1.5px solid var(--border);border-radius:var(--r-sm);
+  padding:4px 10px;font-size:11px;font-weight:700;color:var(--mid);cursor:pointer;
+  display:flex;align-items:center;gap:4px;transition:.15s;margin-left:auto;
+}
+.q-flag-btn:hover,.q-flag-btn.flagged{border-color:var(--amber);color:var(--amber-dark);background:var(--amber-light);}
+.q-flag-btn svg{width:12px;height:12px;fill:none;stroke:currentColor;stroke-width:2;}
+.q-text{font-size:16px;font-weight:700;color:var(--dark);line-height:1.6;margin-bottom:24px;}
+.q-options{display:flex;flex-direction:column;gap:10px;margin-bottom:20px;}
+.q-opt{
+  display:flex;align-items:flex-start;gap:12px;padding:14px 16px;
+  border-radius:var(--r);border:1.5px solid var(--border);
+  cursor:pointer;font-size:14px;color:var(--dark);transition:.15s;
+  background:transparent;width:100%;text-align:left;
+}
+.q-opt:hover{border-color:var(--teal);background:var(--teal-light);}
+.q-opt.selected{border-color:var(--teal);background:var(--teal-light);}
+.q-opt.correct{border-color:var(--green);background:#DFFBF1 !important;}
+.q-opt.wrong{border-color:var(--red);background:#FFE8E8 !important;}
+.q-opt-key{
+  width:26px;height:26px;border:1.5px solid var(--border);border-radius:6px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:12px;font-weight:800;flex-shrink:0;color:var(--mid);
+  font-family:var(--ff-head);
+}
+.q-opt.selected .q-opt-key{background:var(--teal);border-color:var(--teal);color:#fff;}
+.q-opt.correct .q-opt-key{background:var(--green);border-color:var(--green);color:#fff;}
+.q-opt.wrong .q-opt-key{background:var(--red);border-color:var(--red);color:#fff;}
+.q-actions{display:flex;gap:10px;align-items:center;}
+
+.rationale-drawer{
+  background:var(--teal-xlight);border:1.5px solid var(--teal-light);
+  border-radius:var(--r);padding:16px 18px;margin-top:16px;
+  display:none;
+}
+.rationale-drawer.show{display:block;}
+.rat-header{display:flex;align-items:center;gap:8px;margin-bottom:8px;}
+.rat-icon{width:22px;height:22px;background:var(--teal);border-radius:50%;display:flex;align-items:center;justify-content:center;}
+.rat-icon svg{width:12px;height:12px;fill:none;stroke:#fff;stroke-width:2.5;}
+.rat-title{font-size:13px;font-weight:800;color:var(--teal);}
+.rat-text{font-size:13px;color:var(--dark);line-height:1.65;}
+
+/* ═══════════════════════════════════════════
+   VIEW 3 — MOCK EXAM (DigiProctor style)
+═══════════════════════════════════════════ */
+.mock-shell{
+  background:#0A1A1A;min-height:calc(100vh - 64px);
+  margin:-28px;padding:20px;
+}
+.mock-topbar{
+  background:#0F2020;border:1px solid rgba(255,255,255,.08);
+  border-radius:var(--r-lg);padding:14px 20px;
+  display:flex;justify-content:space-between;align-items:center;
+  margin-bottom:16px;
+}
+.mock-logo{font-family:var(--ff-head);font-size:14px;font-weight:800;color:#fff;}
+.mock-logo span{color:var(--amber);}
+.mock-meta{display:flex;align-items:center;gap:16px;}
+.mock-exam-name{font-size:12px;color:rgba(255,255,255,.5);}
+.mock-timer{
+  font-family:var(--ff-head);font-size:18px;font-weight:800;color:var(--amber);
+  background:rgba(245,166,35,.12);border:1px solid rgba(245,166,35,.25);
+  padding:7px 16px;border-radius:var(--r-full);
+}
+.mock-timer.warning{color:var(--red);background:rgba(232,69,69,.1);border-color:rgba(232,69,69,.3);}
+.mock-save-btn{
+  font-size:12px;font-weight:700;color:rgba(255,255,255,.6);
+  background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);
+  padding:7px 14px;border-radius:var(--r-full);cursor:pointer;
+}
+
+.mock-main{display:grid;grid-template-columns:1fr 280px;gap:16px;}
+.mock-q-panel{
+  background:#111E1E;border:1px solid rgba(255,255,255,.08);
+  border-radius:var(--r-lg);padding:24px;
+}
+.mock-q-meta{font-size:11px;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.06em;margin-bottom:12px;display:flex;justify-content:space-between;}
+.mock-q-text{font-size:15px;color:rgba(255,255,255,.9);font-weight:700;line-height:1.65;margin-bottom:22px;}
+.mock-options{display:flex;flex-direction:column;gap:9px;margin-bottom:24px;}
+.mock-opt{
+  display:flex;align-items:flex-start;gap:12px;padding:13px 15px;
+  border-radius:var(--r-sm);border:1px solid rgba(255,255,255,.1);
+  cursor:pointer;font-size:13px;color:rgba(255,255,255,.8);
+  background:rgba(255,255,255,.03);transition:.15s;width:100%;text-align:left;
+}
+.mock-opt:hover{background:rgba(8,81,79,.3);border-color:var(--teal-mid);}
+.mock-opt.selected{background:rgba(8,81,79,.4);border-color:var(--teal);}
+.mock-opt-key{
+  width:24px;height:24px;border:1px solid rgba(255,255,255,.2);border-radius:5px;
+  display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;
+  flex-shrink:0;color:rgba(255,255,255,.45);font-family:var(--ff-head);
+}
+.mock-opt.selected .mock-opt-key{background:var(--teal);border-color:var(--teal);color:#fff;}
+.mock-nav-row{display:flex;justify-content:space-between;align-items:center;}
+.mock-flag-btn{
+  background:rgba(245,166,35,.1);border:1px solid rgba(245,166,35,.25);
+  color:var(--amber);padding:8px 16px;border-radius:var(--r-full);
+  font-size:12px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:6px;
+}
+.mock-flag-btn svg{width:13px;height:13px;fill:none;stroke:currentColor;stroke-width:2;}
+.mock-nav-btns{display:flex;gap:8px;}
+.mock-prev,.mock-next{
+  padding:9px 18px;border-radius:var(--r-full);font-size:13px;font-weight:700;cursor:pointer;
+}
+.mock-prev{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);color:rgba(255,255,255,.6);}
+.mock-next{background:var(--teal);border:none;color:#fff;}
+.mock-submit-btn{background:var(--amber);border:none;color:var(--dark);padding:9px 20px;border-radius:var(--r-full);font-size:13px;font-weight:800;cursor:pointer;}
+
+.mock-side-panel{display:flex;flex-direction:column;gap:12px;}
+.mock-progress-card{
+  background:#111E1E;border:1px solid rgba(255,255,255,.08);
+  border-radius:var(--r-lg);padding:16px;
+}
+.mpc-title{font-size:12px;font-weight:700;color:rgba(255,255,255,.5);text-transform:uppercase;letter-spacing:.06em;margin-bottom:12px;}
+.mpc-stats{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px;}
+.mpc-stat{background:rgba(255,255,255,.05);border-radius:var(--r-sm);padding:10px;text-align:center;}
+.mpc-stat-val{font-family:var(--ff-head);font-size:20px;font-weight:800;color:#fff;}
+.mpc-stat-label{font-size:10px;color:rgba(255,255,255,.4);margin-top:2px;}
+.mpc-stat.answered .mpc-stat-val{color:var(--green);}
+.mpc-stat.flagged-s .mpc-stat-val{color:var(--amber);}
+
+.mock-q-grid-wrap{
+  background:#111E1E;border:1px solid rgba(255,255,255,.08);
+  border-radius:var(--r-lg);padding:16px;
+}
+.mqg-title{font-size:12px;font-weight:700;color:rgba(255,255,255,.5);text-transform:uppercase;letter-spacing:.06em;margin-bottom:12px;}
+.mock-q-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:5px;}
+.mq-cell{
+  width:100%;aspect-ratio:1;border-radius:5px;
+  border:1px solid rgba(255,255,255,.1);
+  display:flex;align-items:center;justify-content:center;
+  font-size:11px;font-weight:800;color:rgba(255,255,255,.4);cursor:pointer;
+  transition:.15s;font-family:var(--ff-head);
+}
+.mq-cell:hover{border-color:var(--teal);color:var(--teal);}
+.mq-cell.ans{background:rgba(8,81,79,.4);border-color:var(--teal);color:rgba(255,255,255,.7);}
+.mq-cell.flagged{background:rgba(245,166,35,.15);border-color:var(--amber);color:var(--amber);}
+.mq-cell.current{background:var(--teal);border-color:var(--teal);color:#fff;}
+
+/* ═══════════════════════════════════════════
+   VIEW 4 — FLASHCARDS
+═══════════════════════════════════════════ */
+.flashcard-page{display:grid;grid-template-columns:280px 1fr;gap:20px;}
+.deck-panel{
+  background:var(--card-bg);border:1px solid var(--border);
+  border-radius:var(--r-lg);padding:20px;height:fit-content;
+}
+.deck-title{font-family:var(--ff-head);font-size:13px;font-weight:800;color:var(--dark);margin-bottom:14px;text-transform:uppercase;letter-spacing:.06em;}
+.deck-list{list-style:none;display:flex;flex-direction:column;gap:6px;margin-bottom:16px;}
+.deck-item{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:10px 12px;border-radius:var(--r-sm);cursor:pointer;
+  border:1.5px solid var(--border);transition:.15s;
+}
+.deck-item:hover{border-color:var(--teal);}
+.deck-item.active{border-color:var(--teal);background:var(--teal-light);}
+.deck-name{font-size:13px;font-weight:700;color:var(--dark);}
+.deck-counts{display:flex;gap:4px;}
+.dc-new{background:#DFFBF1;color:#0F6E56;font-size:10px;font-weight:800;padding:2px 7px;border-radius:var(--r-full);}
+.dc-due{background:var(--amber-light);color:var(--amber-dark);font-size:10px;font-weight:800;padding:2px 7px;border-radius:var(--r-full);}
+
+.flashcard-study-area{display:flex;flex-direction:column;align-items:center;gap:24px;}
+.fc-progress-row{
+  width:100%;background:var(--card-bg);border:1px solid var(--border);
+  border-radius:var(--r-lg);padding:14px 20px;
+  display:flex;align-items:center;gap:16px;
+}
+.fc-status-dots{display:flex;gap:6px;flex:1;}
+.fc-dot{width:10px;height:10px;border-radius:50%;background:var(--border);}
+.fc-dot.new-d{background:var(--teal);}
+.fc-dot.due-d{background:var(--amber);}
+.fc-dot.done-d{background:var(--green);}
+
+.flashcard-container{
+  width:100%;max-width:600px;height:320px;perspective:1000px;cursor:pointer;
+}
+.flashcard-inner{
+  position:relative;width:100%;height:100%;
+  transform-style:preserve-3d;transition:transform .55s cubic-bezier(.4,0,.2,1);
+}
+.flashcard-container.flipped .flashcard-inner{transform:rotateY(180deg);}
+.fc-face{
+  position:absolute;inset:0;border-radius:var(--r-lg);
+  border:1.5px solid var(--border);background:var(--card-bg);
+  backface-visibility:hidden;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;padding:36px;text-align:center;
+  box-shadow:var(--shadow);
+}
+.fc-back{transform:rotateY(180deg);}
+.fc-face-label{
+  font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.1em;
+  color:var(--mid);margin-bottom:16px;
+}
+.fc-face-text{font-size:18px;font-weight:700;color:var(--dark);line-height:1.5;}
+.fc-back .fc-face-text{font-size:15px;line-height:1.7;color:var(--mid);}
+.fc-back .fc-answer-highlight{
+  font-size:20px;font-weight:800;color:var(--teal);
+  font-family:var(--ff-head);margin-bottom:12px;display:block;
+}
+.fc-tap-hint{font-size:12px;color:var(--light);margin-top:20px;display:flex;align-items:center;gap:4px;}
+.fc-tap-hint svg{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2;}
+
+.fc-rating-row{display:flex;gap:12px;width:100%;max-width:600px;}
+.fc-rate-btn{
+  flex:1;padding:12px;border-radius:var(--r);border:2px solid var(--border);
+  font-size:13px;font-weight:700;cursor:pointer;transition:.15s;background:var(--card-bg);
+}
+.fc-rate-btn.again{border-color:#E84545;color:#E84545;}
+.fc-rate-btn.again:hover{background:#FFE8E8;}
+.fc-rate-btn.hard{border-color:var(--amber);color:var(--amber-dark);}
+.fc-rate-btn.hard:hover{background:var(--amber-light);}
+.fc-rate-btn.good{border-color:var(--teal);color:var(--teal);}
+.fc-rate-btn.good:hover{background:var(--teal-light);}
+.fc-rate-btn.easy{border-color:var(--green);color:#0F6E56;}
+.fc-rate-btn.easy:hover{background:#DFFBF1;}
+.fc-rate-btn .fc-days{display:block;font-size:10px;font-weight:600;opacity:.7;margin-top:2px;}
+
+/* ═══════════════════════════════════════════
+   VIEW 5 — ANALYTICS
+═══════════════════════════════════════════ */
+.analytics-layout{display:grid;grid-template-columns:1fr 340px;gap:20px;}
+.analytics-main{display:flex;flex-direction:column;gap:20px;}
+
+.readiness-card{
+  background:linear-gradient(135deg,var(--teal) 0%,var(--teal-mid) 100%);
+  color:#fff;border-radius:var(--r-lg);padding:24px;
+  display:flex;align-items:center;gap:28px;
+}
+.readiness-ring-wrap{position:relative;width:100px;height:100px;flex-shrink:0;}
+.readiness-ring-wrap svg{width:100px;height:100px;transform:rotate(-90deg);}
+.r-ring-bg{fill:none;stroke:rgba(255,255,255,.2);stroke-width:9;}
+.r-ring-fill{fill:none;stroke:var(--amber);stroke-width:9;stroke-linecap:round;stroke-dasharray:270;stroke-dashoffset:68;}
+.r-ring-text{
+  position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+  font-family:var(--ff-head);font-size:22px;font-weight:800;color:#fff;
+}
+.readiness-info{}
+.readiness-info h3{font-size:20px;font-weight:800;margin-bottom:4px;}
+.readiness-info p{font-size:13px;color:rgba(255,255,255,.72);margin-bottom:12px;}
+.readiness-tags{display:flex;gap:8px;flex-wrap:wrap;}
+.r-tag{background:rgba(255,255,255,.15);color:#fff;font-size:11px;font-weight:700;padding:4px 10px;border-radius:var(--r-full);}
+.r-tag.good-tag{background:rgba(26,158,117,.3);}
+.r-tag.bad-tag{background:rgba(232,69,69,.3);}
+
+.unit-detail-card{background:var(--card-bg);border:1px solid var(--border);border-radius:var(--r-lg);padding:24px;}
+.udc-row{
+  display:flex;align-items:center;gap:12px;padding:12px 0;
+  border-bottom:1px solid var(--border);
+}
+.udc-row:last-child{border-bottom:none;}
+.udc-name{flex:1;font-size:14px;font-weight:600;color:var(--dark);}
+.udc-bar-wrap{width:160px;}
+.udc-pct{font-size:13px;font-weight:800;min-width:42px;text-align:right;}
+.udc-drill{
+  font-size:11px;font-weight:700;color:var(--teal);
+  background:var(--teal-light);padding:4px 10px;border-radius:var(--r-full);
+  cursor:pointer;white-space:nowrap;border:none;
+}
+
+.trend-card{background:var(--card-bg);border:1px solid var(--border);border-radius:var(--r-lg);padding:24px;}
+.trend-bars{display:flex;align-items:flex-end;gap:8px;height:120px;padding-top:12px;}
+.trend-bar-col{display:flex;flex-direction:column;align-items:center;flex:1;gap:4px;height:100%;}
+.trend-bar{
+  width:100%;border-radius:6px 6px 0 0;background:var(--teal-light);
+  transition:height .5s ease;position:relative;min-height:4px;
+}
+.trend-bar:hover{background:var(--teal);}
+.trend-bar .trend-tip{
+  position:absolute;top:-28px;left:50%;transform:translateX(-50%);
+  background:var(--dark);color:#fff;font-size:10px;font-weight:700;
+  padding:3px 7px;border-radius:4px;white-space:nowrap;
+  opacity:0;transition:.15s;pointer-events:none;
+}
+.trend-bar:hover .trend-tip{opacity:1;}
+.trend-day{font-size:10px;color:var(--mid);font-weight:600;}
+
+.mock-history{background:var(--card-bg);border:1px solid var(--border);border-radius:var(--r-lg);padding:24px;}
+.mh-table{width:100%;border-collapse:collapse;}
+.mh-table th{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:var(--mid);padding:8px 12px;text-align:left;border-bottom:2px solid var(--border);}
+.mh-table td{font-size:13px;color:var(--dark);padding:10px 12px;border-bottom:1px solid var(--border);}
+.mh-table tr:last-child td{border-bottom:none;}
+.mh-score{font-family:var(--ff-head);font-weight:800;}
+
+.analytics-side{display:flex;flex-direction:column;gap:16px;}
+.peer-card{background:var(--card-bg);border:1px solid var(--border);border-radius:var(--r-lg);padding:20px;}
+.peer-pct-display{
+  text-align:center;padding:20px 0;
+}
+.peer-pct-num{font-family:var(--ff-head);font-size:48px;font-weight:800;color:var(--teal);}
+.peer-pct-label{font-size:13px;color:var(--mid);margin-top:4px;}
+.peer-bar-row{display:flex;flex-direction:column;gap:8px;margin-top:12px;}
+.peer-bar-label{font-size:12px;color:var(--mid);}
+.peer-bell-wrap{position:relative;height:8px;background:var(--border);border-radius:var(--r-full);}
+.peer-bell-fill{position:absolute;left:0;top:0;height:100%;background:linear-gradient(90deg,var(--teal-light),var(--teal));border-radius:var(--r-full);}
+.peer-marker{
+  position:absolute;top:-4px;width:16px;height:16px;
+  background:var(--amber);border:2px solid #fff;border-radius:50%;
+  transform:translateX(-50%);
+}
+
+/* ═══════════════════════════════════════════
+   VIEW 6 — ACHIEVEMENTS & GAMIFICATION
+═══════════════════════════════════════════ */
+.level-banner{
+  background:linear-gradient(135deg,var(--dark) 0%,#1A4040 100%);
+  color:#fff;border-radius:var(--r-lg);padding:24px 28px;
+  display:flex;align-items:center;gap:24px;margin-bottom:20px;
+}
+.level-badge{
+  width:72px;height:72px;background:linear-gradient(135deg,var(--amber) 0%,#E8920A 100%);
+  border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  flex-shrink:0;box-shadow:0 4px 20px rgba(245,166,35,.4);
+}
+.level-num{font-family:var(--ff-head);font-size:22px;font-weight:800;color:var(--dark);line-height:1;}
+.level-word{font-size:8px;font-weight:800;color:var(--dark);text-transform:uppercase;letter-spacing:.06em;}
+.level-info{flex:1;}
+.level-info h3{font-size:18px;font-weight:800;margin-bottom:4px;}
+.level-info p{font-size:13px;color:rgba(255,255,255,.6);margin-bottom:10px;}
+.xp-bar-row{display:flex;align-items:center;gap:12px;}
+.xp-track{flex:1;height:10px;background:rgba(255,255,255,.15);border-radius:var(--r-full);overflow:hidden;}
+.xp-fill{height:100%;background:linear-gradient(90deg,var(--amber),#F7C35A);border-radius:var(--r-full);}
+.xp-text{font-size:12px;color:rgba(255,255,255,.6);white-space:nowrap;}
+.level-streak{text-align:center;flex-shrink:0;}
+.ls-num{font-family:var(--ff-head);font-size:36px;font-weight:800;color:var(--amber);}
+.ls-label{font-size:11px;color:rgba(255,255,255,.5);}
+
+.streak-cal{
+  background:var(--card-bg);border:1px solid var(--border);
+  border-radius:var(--r-lg);padding:20px;margin-bottom:20px;
+}
+.streak-cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;margin-top:14px;}
+.scd{
+  aspect-ratio:1;border-radius:6px;background:var(--border);
+  display:flex;align-items:center;justify-content:center;
+  font-size:10px;font-weight:700;color:var(--light);
+}
+.scd.done{background:var(--teal-light);color:var(--teal);}
+.scd.today{background:var(--teal);color:#fff;}
+.scd.fire{background:linear-gradient(135deg,var(--amber),#F7C35A);color:var(--dark);}
+.scd.miss{background:#FFE8E8;color:var(--red);}
+.streak-day-labels{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;margin-top:8px;}
+.sdl{font-size:9px;text-align:center;color:var(--mid);font-weight:700;text-transform:uppercase;}
+
+.badges-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:20px;}
+.badge-item{
+  background:var(--card-bg);border:1.5px solid var(--border);
+  border-radius:var(--r-lg);padding:20px;text-align:center;
+  transition:all .2s;cursor:pointer;
+}
+.badge-item:hover{box-shadow:var(--shadow);transform:translateY(-2px);}
+.badge-item.earned{border-color:var(--amber);}
+.badge-item.locked{opacity:.5;filter:grayscale(.8);}
+.badge-emoji{font-size:36px;margin-bottom:8px;display:block;}
+.badge-name{font-family:var(--ff-head);font-size:13px;font-weight:800;color:var(--dark);}
+.badge-desc{font-size:11px;color:var(--mid);margin-top:4px;}
+.badge-earned-chip{background:var(--amber-light);color:var(--amber-dark);font-size:10px;font-weight:800;padding:2px 8px;border-radius:var(--r-full);display:inline-block;margin-top:8px;}
+
+.daily-challenges{background:var(--card-bg);border:1px solid var(--border);border-radius:var(--r-lg);padding:24px;}
+.dc-list{display:flex;flex-direction:column;gap:12px;margin-top:14px;}
+.dc-item{
+  display:flex;align-items:center;gap:14px;padding:14px;
+  border-radius:var(--r);border:1.5px solid var(--border);
+  background:var(--cream);
+}
+body.dark .dc-item{background:var(--main-bg);}
+.dc-check{
+  width:28px;height:28px;border:2px solid var(--border);border-radius:50%;
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;
+  cursor:pointer;transition:.15s;
+}
+.dc-check.done{background:var(--green);border-color:var(--green);}
+.dc-check.done svg{stroke:#fff;}
+.dc-check svg{width:14px;height:14px;fill:none;stroke:var(--light);stroke-width:2.5;}
+.dc-challenge{flex:1;}
+.dc-challenge p{font-size:14px;font-weight:700;color:var(--dark);}
+.dc-challenge small{font-size:12px;color:var(--mid);}
+.dc-xp-pill{background:var(--amber-light);color:var(--amber-dark);font-size:11px;font-weight:800;padding:4px 10px;border-radius:var(--r-full);}
+
+/* ═══════════════════════════════════════════
+   VIEW 7 — STUDY GROUPS
+═══════════════════════════════════════════ */
+.groups-layout{display:grid;grid-template-columns:1fr 320px;gap:20px;}
+.groups-main{}
+.groups-header-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;}
+.group-search{
+  display:flex;align-items:center;gap:10px;
+  background:var(--card-bg);border:1.5px solid var(--border);
+  border-radius:var(--r-full);padding:9px 16px;flex:1;max-width:320px;
+}
+.group-search svg{width:16px;height:16px;fill:none;stroke:var(--mid);stroke-width:2;flex-shrink:0;}
+.group-search input{border:none;background:transparent;font-size:13px;color:var(--dark);outline:none;flex:1;font-family:var(--ff-body);}
+
+.group-card{
+  background:var(--card-bg);border:1.5px solid var(--border);
+  border-radius:var(--r-lg);padding:20px;margin-bottom:14px;
+  display:flex;align-items:flex-start;gap:16px;transition:all .2s;
+}
+.group-card:hover{box-shadow:var(--shadow);border-color:var(--teal);}
+.group-avatar{
+  width:52px;height:52px;border-radius:var(--r);flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;
+  font-size:24px;background:var(--teal-light);
+}
+.group-info{flex:1;}
+.group-name{font-family:var(--ff-head);font-size:16px;font-weight:800;color:var(--dark);margin-bottom:2px;}
+.group-desc{font-size:13px;color:var(--mid);margin-bottom:10px;}
+.group-meta-row{display:flex;align-items:center;gap:12px;flex-wrap:wrap;}
+.group-meta-item{display:flex;align-items:center;gap:4px;font-size:12px;color:var(--mid);font-weight:600;}
+.group-meta-item svg{width:13px;height:13px;fill:none;stroke:currentColor;stroke-width:2;}
+.group-actions{display:flex;gap:8px;flex-direction:column;align-items:flex-end;flex-shrink:0;}
+.group-members-row{display:flex;margin-top:4px;}
+.gm-avatar{
+  width:26px;height:26px;border-radius:50%;border:2px solid var(--white);
+  background:var(--teal);display:flex;align-items:center;justify-content:center;
+  font-size:10px;font-weight:800;color:var(--amber);margin-left:-8px;
+  font-family:var(--ff-head);
+}
+.gm-avatar:first-child{margin-left:0;}
+.gm-more{background:var(--border);color:var(--mid);font-size:9px;}
+
+.group-sidebar{display:flex;flex-direction:column;gap:16px;}
+.your-group-card{
+  background:linear-gradient(135deg,var(--teal) 0%,#0F6E56 100%);
+  color:#fff;border-radius:var(--r-lg);padding:20px;
+}
+.ygc-name{font-family:var(--ff-head);font-size:17px;font-weight:800;margin-bottom:4px;}
+.ygc-sub{font-size:12px;color:rgba(255,255,255,.7);margin-bottom:16px;}
+.ygc-members{display:flex;flex-direction:column;gap:10px;margin-bottom:16px;}
+.ygc-member{display:flex;align-items:center;gap:10px;}
+.ygcm-av{width:30px;height:30px;border-radius:50%;background:rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:#fff;font-family:var(--ff-head);}
+.ygcm-info{}
+.ygcm-name{font-size:13px;font-weight:700;color:#fff;}
+.ygcm-score{font-size:11px;color:rgba(255,255,255,.6);}
+.ygcm-bar-wrap{flex:1;height:5px;background:rgba(255,255,255,.2);border-radius:var(--r-full);overflow:hidden;}
+.ygcm-bar{height:100%;background:var(--amber);border-radius:var(--r-full);}
+.group-challenge-card{
+  background:var(--card-bg);border:1px solid var(--border);
+  border-radius:var(--r-lg);padding:20px;
+}
+.gcc-header{font-family:var(--ff-head);font-size:13px;font-weight:800;color:var(--dark);margin-bottom:14px;display:flex;align-items:center;gap:8px;}
+.gcc-item{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border);}
+.gcc-item:last-child{border-bottom:none;}
+.gcc-rank{font-family:var(--ff-head);font-size:16px;font-weight:800;color:var(--mid);width:24px;flex-shrink:0;}
+.gcc-rank.top{color:var(--amber);}
+.gcc-you-badge{background:var(--amber-light);color:var(--amber-dark);font-size:10px;font-weight:800;padding:2px 6px;border-radius:var(--r-full);}
+.gcc-name{flex:1;font-size:13px;font-weight:700;color:var(--dark);}
+.gcc-score{font-family:var(--ff-head);font-size:14px;font-weight:800;color:var(--teal);}
+
+/* ═══════════════════════════════════════════
+   VIEW 8 — SETTINGS & PROFILE
+═══════════════════════════════════════════ */
+.settings-layout{display:grid;grid-template-columns:220px 1fr;gap:24px;}
+.settings-nav{
+  background:var(--card-bg);border:1px solid var(--border);
+  border-radius:var(--r-lg);padding:16px;height:fit-content;position:sticky;top:88px;
+}
+.settings-nav-item{
+  display:flex;align-items:center;gap:10px;padding:10px 12px;
+  border-radius:var(--r-sm);font-size:13px;font-weight:600;color:var(--mid);
+  cursor:pointer;transition:.15s;
+}
+.settings-nav-item:hover{background:var(--teal-light);color:var(--teal);}
+.settings-nav-item.active{background:var(--teal-light);color:var(--teal);}
+.settings-nav-item svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2;flex-shrink:0;}
+
+.settings-content{display:flex;flex-direction:column;gap:20px;}
+.setting-section{background:var(--card-bg);border:1px solid var(--border);border-radius:var(--r-lg);padding:24px;}
+.setting-section-title{font-family:var(--ff-head);font-size:16px;font-weight:800;color:var(--dark);margin-bottom:4px;}
+.setting-section-sub{font-size:13px;color:var(--mid);margin-bottom:20px;}
+.setting-row{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:14px 0;border-bottom:1px solid var(--border);
+}
+.setting-row:last-child{border-bottom:none;}
+.setting-row-info{}
+.setting-row-label{font-size:14px;font-weight:700;color:var(--dark);}
+.setting-row-desc{font-size:12px;color:var(--mid);margin-top:2px;}
+
+/* toggle switch */
+.toggle-switch{
+  width:44px;height:24px;background:var(--border);border-radius:var(--r-full);
+  position:relative;cursor:pointer;transition:background .2s;
+}
+.toggle-switch.on{background:var(--teal);}
+.toggle-switch::after{
+  content:'';width:18px;height:18px;background:#fff;border-radius:50%;
+  position:absolute;top:3px;left:3px;transition:transform .2s;
+  box-shadow:0 1px 4px rgba(0,0,0,.2);
+}
+.toggle-switch.on::after{transform:translateX(20px);}
+
+/* profile section */
+.profile-card{
+  background:linear-gradient(135deg,var(--teal-xlight) 0%,var(--cream) 100%);
+  border:1.5px solid var(--border);border-radius:var(--r-lg);padding:24px;
+  display:flex;align-items:center;gap:20px;
+}
+.profile-avatar-big{
+  width:72px;height:72px;background:var(--teal);border-radius:50%;
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;
+  font-family:var(--ff-head);font-size:24px;font-weight:800;color:var(--amber);
+  border:3px solid var(--amber);
+}
+.profile-info h3{font-size:20px;font-weight:800;color:var(--dark);}
+.profile-info p{font-size:14px;color:var(--mid);margin-bottom:10px;}
+.profile-tags{display:flex;gap:8px;flex-wrap:wrap;}
+
+.input-field{
+  width:100%;padding:10px 14px;border:1.5px solid var(--border);border-radius:var(--r);
+  font-size:14px;font-family:var(--ff-body);color:var(--dark);background:var(--white);
+  transition:.15s;outline:none;
+}
+.input-field:focus{border-color:var(--teal);}
+body.dark .input-field{background:var(--card-bg);color:var(--dark);}
+.input-group{margin-bottom:16px;}
+.input-label{font-size:13px;font-weight:700;color:var(--dark);margin-bottom:6px;display:block;}
+
+.select-cadre-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;}
+.cadre-option{
+  border:2px solid var(--border);border-radius:var(--r);padding:14px 12px;
+  text-align:center;cursor:pointer;transition:.15s;
+}
+.cadre-option:hover{border-color:var(--teal);}
+.cadre-option.active{border-color:var(--teal);background:var(--teal-light);}
+.cadre-option-icon{font-size:24px;margin-bottom:6px;}
+.cadre-option-name{font-size:13px;font-weight:800;color:var(--dark);}
+.cadre-option-sub{font-size:11px;color:var(--mid);}
+
+/* ─────────────────────────────────────────────
+   LEADERBOARD (inside achievements view)
+───────────────────────────────────────────── */
+.leaderboard-section{margin-top:20px;}
+.leaderboard-row{
+  display:flex;align-items:center;gap:14px;padding:12px 16px;
+  border-bottom:1px solid var(--border);transition:.15s;border-radius:var(--r-sm);
+}
+.leaderboard-row:hover{background:var(--teal-xlight);}
+.lb-rank{
+  font-family:var(--ff-head);font-size:16px;font-weight:800;
+  width:32px;text-align:center;color:var(--mid);
+}
+.lb-rank.gold{color:#F5A623;}
+.lb-rank.silver{color:#8A9EA0;}
+.lb-rank.bronze{color:#C0702A;}
+.lb-trophy{font-size:20px;width:32px;text-align:center;}
+.lb-avatar{
+  width:36px;height:36px;border-radius:50%;background:var(--teal-light);
+  display:flex;align-items:center;justify-content:center;
+  font-family:var(--ff-head);font-size:13px;font-weight:800;color:var(--teal);
+  flex-shrink:0;
+}
+.lb-name{flex:1;font-size:14px;font-weight:700;color:var(--dark);}
+.lb-you{background:var(--amber);color:var(--dark);font-size:9px;font-weight:800;padding:2px 6px;border-radius:var(--r-full);margin-left:6px;}
+.lb-cadre{font-size:11px;color:var(--mid);}
+.lb-score{font-family:var(--ff-head);font-size:16px;font-weight:800;color:var(--teal);min-width:60px;text-align:right;}
+.lb-bar-wrap{width:80px;}
+.lb-tabs{display:flex;gap:4px;background:var(--border);border-radius:var(--r-full);padding:4px;margin-bottom:16px;width:fit-content;}
+.lb-tab{padding:6px 16px;border-radius:var(--r-full);font-size:12px;font-weight:700;color:var(--mid);cursor:pointer;transition:.15s;}
+.lb-tab.active{background:var(--teal);color:#fff;}
+
+/* ─────────────────────────────────────────────
+   MOBILE SIDEBAR TOGGLE
+───────────────────────────────────────────── */
+.mobile-sidebar-toggle{
+  display:none;position:fixed;bottom:20px;right:20px;z-index:300;
+  width:52px;height:52px;background:var(--teal);border-radius:50%;border:none;
+  align-items:center;justify-content:center;box-shadow:var(--shadow-lg);cursor:pointer;
+}
+.mobile-sidebar-toggle svg{width:22px;height:22px;fill:none;stroke:#fff;stroke-width:2.2;}
+.sidebar-overlay{
+  display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:199;
+}
+
+/* ─────────────────────────────────────────────
+   RESPONSIVE
+───────────────────────────────────────────── */
+@media(max-width:1100px){
+  .analytics-layout{grid-template-columns:1fr;}
+  .groups-layout{grid-template-columns:1fr;}
+  .group-sidebar{display:none;}
+  .badges-grid{grid-template-columns:repeat(3,1fr);}
+  .grid-4{grid-template-columns:repeat(2,1fr);}
+}
+@media(max-width:900px){
+  .sidebar{transform:translateX(-100%);}
+  .sidebar.open{transform:translateX(0);}
+  .main-area{margin-left:0;}
+  .mobile-sidebar-toggle{display:flex;}
+  .sidebar-overlay.show{display:block;}
+  .practice-layout{grid-template-columns:1fr;}
+  .unit-filter-panel{display:none;}
+  .flashcard-page{grid-template-columns:1fr;}
+  .deck-panel{display:none;}
+  .settings-layout{grid-template-columns:1fr;}
+  .settings-nav{display:none;}
+  .mock-main{grid-template-columns:1fr;}
+  .mock-side-panel{display:none;}
+  .badges-grid{grid-template-columns:repeat(2,1fr);}
+  .grid-2,.grid-3{grid-template-columns:1fr;}
+  .welcome-banner{flex-direction:column;align-items:flex-start;}
+  .wb-right{align-self:stretch;}
+}
+@media(max-width:600px){
+  .content{padding:16px;}
+  .topbar-dash{padding:0 16px;}
+  .topbar-streak-badge,.xp-badge{display:none;}
+  .badges-grid{grid-template-columns:repeat(2,1fr);}
+  .grid-4{grid-template-columns:1fr 1fr;}
+  .readiness-card{flex-direction:column;}
+  .fc-rating-row{flex-wrap:wrap;}
+  .fc-rate-btn{flex:none;width:calc(50% - 6px);}
+}
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════
+     SIDEBAR
+════════════════════════════════════════ -->
+<div class="sidebar" id="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-mark">
+      <svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+    </div>
+    <span class="logo-text">Nurse<span>Pass</span></span>
+  </div>
+
+  <div class="sidebar-user">
+    <div class="su-avatar">MW</div>
+    <div>
+      <div class="su-name">Mercy Wanjiku</div>
+      <div class="su-cadre">KRCHN · August Exam</div>
+    </div>
+  </div>
+
+  <nav class="sidebar-nav">
+    <div class="nav-section-label">Main</div>
+    <a class="active" onclick="showView('home',this)">
+      <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+      Dashboard
+    </a>
+    <a onclick="showView('practice',this)">
+      <svg viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+      Practice MCQs
+    </a>
+    <a onclick="showView('mockexam',this)">
+      <svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+      Mock Exam
+    </a>
+    <a onclick="showView('flashcards',this)">
+      <svg viewBox="0 0 24 24"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M12 8v8M8 12h8"/></svg>
+      Flashcards
+    </a>
+
+    <div class="nav-section-label" style="margin-top:8px;">Progress</div>
+    <a onclick="showView('analytics',this)">
+      <svg viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+      Analytics
+    </a>
+    <a onclick="showView('achievements',this)">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="7"/><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"/></svg>
+      Achievements
+    </a>
+
+    <div class="nav-section-label" style="margin-top:8px;">Community</div>
+    <a onclick="showView('groups',this)">
+      <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>
+      Study Groups
+    </a>
+
+    <div class="nav-section-label" style="margin-top:8px;">Account</div>
+    <a onclick="showView('settings',this)">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+      Settings
+    </a>
+  </nav>
+
+  <div class="sidebar-streak">
+    <div class="streak-row">
+      <span class="streak-fire">🔥</span>
+      <div>
+        <div style="display:flex;align-items:baseline;gap:4px;">
+          <span class="streak-count">14</span>
+          <span style="font-size:12px;color:var(--amber);">day streak</span>
+        </div>
+        <div class="streak-label">Keep it up, Mercy!</div>
+      </div>
+    </div>
+    <div class="streak-dots" style="margin-top:10px;">
+      <div class="streak-dot done">✓</div>
+      <div class="streak-dot done">✓</div>
+      <div class="streak-dot done">✓</div>
+      <div class="streak-dot done">✓</div>
+      <div class="streak-dot done">✓</div>
+      <div class="streak-dot done">✓</div>
+      <div class="streak-dot today">★</div>
+    </div>
+  </div>
+
+  <div class="sidebar-plan">
+    <div class="plan-pill">
+      <div>
+        <div class="plan-pill-name">Pro Plan</div>
+        <div class="plan-pill-days">23 days remaining</div>
+      </div>
+      <span class="plan-pill-badge">PRO</span>
+    </div>
+  </div>
+</div>
+
+<!-- Sidebar overlay (mobile) -->
+<div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
+
+<!-- ═══════════════════════════════════════
+     MAIN AREA
+════════════════════════════════════════ -->
+<div class="main-area">
+
+  <!-- TOP BAR -->
+  <div class="topbar-dash">
+    <div class="topbar-left">
+      <div class="breadcrumb"><strong id="breadcrumbTitle">Dashboard</strong></div>
+    </div>
+    <div class="topbar-right">
+      <div class="topbar-streak-badge">🔥 14 days</div>
+      <div class="xp-badge">⚡ 2,840 XP</div>
+      <button class="icon-btn" title="Notifications">
+        <svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>
+        <span class="notif-dot"></span>
+      </button>
+      <button class="dark-toggle" onclick="toggleDark()" title="Toggle dark mode">
+        <span id="darkToggleLabel">🌙 Dark</span>
+        <div class="toggle-track"><div class="toggle-thumb"></div></div>
+      </button>
+      <div class="topbar-avatar">MW</div>
+    </div>
+  </div>
+
+  <!-- CONTENT AREA -->
+  <div class="content">
+
+    <!-- ════════════════════════════════
+         VIEW: HOME DASHBOARD
+    ════════════════════════════════ -->
+    <div class="view active" id="view-home">
+
+      <!-- Welcome banner -->
+      <div class="welcome-banner">
+        <div class="wb-left">
+          <h2>Good morning, Mercy 👋</h2>
+          <p>You're on a 14-day streak! Your exam is in <strong style="color:var(--amber);">47 days</strong>. Stay consistent.</p>
+          <div class="wb-actions">
+            <button class="btn btn-primary btn-sm" onclick="showView('practice',null)">📚 Continue Practice</button>
+            <button class="btn btn-outline btn-sm" style="color:#fff;border-color:rgba(255,255,255,.4);" onclick="showView('mockexam',null)">🎯 Take Mock Exam</button>
+          </div>
+        </div>
+        <div class="wb-right">
+          <div class="wb-exam-label">⏳ Time to Exam</div>
+          <div class="wb-countdown">
+            <div class="wb-cd-unit"><span class="wb-cd-num" id="hcd-d">47</span><span class="wb-cd-sub">Days</span></div>
+            <div class="wb-cd-unit"><span class="wb-cd-num" id="hcd-h">08</span><span class="wb-cd-sub">Hrs</span></div>
+            <div class="wb-cd-unit"><span class="wb-cd-num" id="hcd-m">33</span><span class="wb-cd-sub">Min</span></div>
+            <div class="wb-cd-unit"><span class="wb-cd-num" id="hcd-s">21</span><span class="wb-cd-sub">Sec</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick stats -->
+      <div class="grid-4" style="margin-bottom:20px;">
+        <div class="stat-card">
+          <div class="stat-icon si-teal">
+            <svg viewBox="0 0 24 24" stroke="var(--teal)"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4z"/></svg>
+          </div>
+          <div class="stat-label">Questions Answered</div>
+          <div class="stat-value">1,284</div>
+          <div class="stat-delta delta-up">↑ 52 today</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon si-amber">
+            <svg viewBox="0 0 24 24" stroke="var(--amber-dark)"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+          </div>
+          <div class="stat-label">Average Score</div>
+          <div class="stat-value">74%</div>
+          <div class="stat-delta delta-up">↑ 3% this week</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon si-green">
+            <svg viewBox="0 0 24 24" stroke="var(--green)"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          </div>
+          <div class="stat-label">Study Time</div>
+          <div class="stat-value">38h</div>
+          <div class="stat-delta delta-up">↑ 2.5h today</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon si-red">
+            <svg viewBox="0 0 24 24" stroke="var(--red)"><circle cx="12" cy="8" r="7"/><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"/></svg>
+          </div>
+          <div class="stat-label">XP Points</div>
+          <div class="stat-value">2,840</div>
+          <div class="stat-delta delta-up">↑ Level 12</div>
+        </div>
+      </div>
+
+      <!-- Main 2-column layout -->
+      <div class="grid-2" style="margin-bottom:20px;">
+
+        <!-- Daily challenge + AI rec -->
+        <div style="display:flex;flex-direction:column;gap:16px;">
+
+          <div class="daily-challenge-card">
+            <div class="dc-header">
+              <div>
+                <div class="dc-label">⚡ Daily Challenge</div>
+                <div class="dc-title">Complete 30 Pharmacology MCQs</div>
+              </div>
+              <span class="dc-xp">+120 XP</span>
+            </div>
+            <div class="dc-progress-row">
+              <div class="prog-track" style="flex:1;">
+                <div class="prog-fill prog-amber" style="width:60%;"></div>
+              </div>
+              <span class="dc-pct">18/30</span>
+            </div>
+            <div style="margin-top:12px;">
+              <button class="btn btn-primary btn-sm" onclick="showView('practice',null)">Continue Challenge →</button>
+            </div>
+          </div>
+
+          <div class="ai-rec-card">
+            <div class="ai-rec-header">
+              <div class="ai-icon">
+                <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+              </div>
+              <div>
+                <div class="ai-rec-title">AI Study Recommendation</div>
+                <div class="ai-rec-sub">Based on your last 7 sessions</div>
+              </div>
+            </div>
+            <div style="background:var(--amber-light);border:1px solid rgba(245,166,35,.3);border-radius:var(--r-sm);padding:12px 14px;margin-bottom:14px;font-size:13px;color:var(--dark);">
+              <strong style="color:var(--amber-dark);">⚡ Priority Focus:</strong> Pharmacology is your weakest unit at 54%. Spend 40 min on it today before your mock exam tomorrow.
+            </div>
+            <ul class="ai-unit-list">
+              <li class="ai-unit-row">
+                <div class="ai-unit-name">Pharmacology</div>
+                <div class="prog-track" style="width:100px;"><div class="prog-fill prog-red" style="width:54%;"></div></div>
+                <div class="ai-unit-pct ai-crit">54%</div>
+              </li>
+              <li class="ai-unit-row">
+                <div class="ai-unit-name">Psychiatric Nursing</div>
+                <div class="prog-track" style="width:100px;"><div class="prog-fill prog-amber" style="width:62%;"></div></div>
+                <div class="ai-unit-pct ai-warn">62%</div>
+              </li>
+              <li class="ai-unit-row">
+                <div class="ai-unit-name">Med-Surgical Nursing</div>
+                <div class="prog-track" style="width:100px;"><div class="prog-fill prog-green" style="width:82%;"></div></div>
+                <div class="ai-unit-pct ai-good">82%</div>
+              </li>
+              <li class="ai-unit-row">
+                <div class="ai-unit-name">Community Health</div>
+                <div class="prog-track" style="width:100px;"><div class="prog-fill prog-teal" style="width:78%;"></div></div>
+                <div class="ai-unit-pct ai-good">78%</div>
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- Recent Activity -->
+        <div class="card">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+            <div class="card-title">Recent Activity</div>
+            <span class="tag tag-teal">Last 7 days</span>
+          </div>
+          <ul class="recent-activity">
+            <li class="activity-row">
+              <div class="act-icon si-teal"><svg viewBox="0 0 24 24" stroke="var(--teal)" fill="none" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/></svg></div>
+              <div><div class="act-text">Mock Exam — KRCHN Paper 1</div><div class="act-sub">2 hours ago · 100 questions</div></div>
+              <div class="act-score" style="color:var(--green);">78%</div>
+            </li>
+            <li class="activity-row">
+              <div class="act-icon si-amber"><svg viewBox="0 0 24 24" stroke="var(--amber-dark)" fill="none" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4z"/></svg></div>
+              <div><div class="act-text">Practice — Pharmacology</div><div class="act-sub">Yesterday · 45 questions</div></div>
+              <div class="act-score" style="color:var(--amber-dark);">61%</div>
+            </li>
+            <li class="activity-row">
+              <div class="act-icon si-green"><svg viewBox="0 0 24 24" stroke="var(--green)" fill="none" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"/></svg></div>
+              <div><div class="act-text">Flashcards — Midwifery Terms</div><div class="act-sub">2 days ago · 40 cards reviewed</div></div>
+              <div class="act-score" style="color:var(--teal);">SRS</div>
+            </li>
+            <li class="activity-row">
+              <div class="act-icon si-teal"><svg viewBox="0 0 24 24" stroke="var(--teal)" fill="none" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></div>
+              <div><div class="act-text">Group Challenge — KRCHN Cohort A</div><div class="act-sub">3 days ago · Ranked 2nd</div></div>
+              <div class="act-score" style="color:var(--amber);">🏆 #2</div>
+            </li>
+            <li class="activity-row">
+              <div class="act-icon si-amber"><svg viewBox="0 0 24 24" stroke="var(--amber-dark)" fill="none" stroke-width="2"><path d="M12 20h9"/></svg></div>
+              <div><div class="act-text">Practice — Community Health</div><div class="act-sub">4 days ago · 60 questions</div></div>
+              <div class="act-score" style="color:var(--green);">80%</div>
+            </li>
+            <li class="activity-row">
+              <div class="act-icon si-red"><svg viewBox="0 0 24 24" stroke="var(--red)" fill="none" stroke-width="2"><circle cx="12" cy="8" r="7"/></svg></div>
+              <div><div class="act-text">Badge Earned: "Pharmacology Warrior"</div><div class="act-sub">5 days ago · +50 XP</div></div>
+              <div class="act-score" style="color:var(--amber);">🏅</div>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <!-- end view-home -->
+
+    <!-- ════════════════════════════════
+         VIEW: PRACTICE MCQs
+    ════════════════════════════════ -->
+    <div class="view" id="view-practice">
+      <div class="page-header">
+        <div class="page-title">Practice MCQs</div>
+        <div class="page-sub">AI-adaptive questions that target your weakest areas first</div>
+      </div>
+      <div class="practice-layout">
+
+        <!-- Unit Filter Panel -->
+        <div class="unit-filter-panel">
+          <div class="uf-title">Units</div>
+          <ul class="unit-filter-list">
+            <li class="ufl-item active">All Units <span class="ufl-count">5,000</span></li>
+            <li class="ufl-item">Medical–Surgical <span class="ufl-count">820</span></li>
+            <li class="ufl-item">Community Health <span class="ufl-count">640</span></li>
+            <li class="ufl-item">Midwifery & RH <span class="ufl-count">580</span></li>
+            <li class="ufl-item">Paediatric Nursing <span class="ufl-count">460</span></li>
+            <li class="ufl-item">Pharmacology <span class="ufl-count">390</span></li>
+            <li class="ufl-item">Psychiatric Nursing <span class="ufl-count">340</span></li>
+            <li class="ufl-item">Research & Mgmt <span class="ufl-count">280</span></li>
+            <li class="ufl-item">Anatomy & Physio <span class="ufl-count">490</span></li>
+          </ul>
+          <div class="uf-divider"></div>
+          <div class="uf-mode-title">Study Mode</div>
+          <button class="mode-btn active">
+            <svg viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+            Tutor (with hints)
+          </button>
+          <button class="mode-btn">
+            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            Timed (exam mode)
+          </button>
+          <button class="mode-btn">
+            <svg viewBox="0 0 24 24"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 014-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 01-4 4H3"/></svg>
+            Weak Area Drill
+          </button>
+        </div>
+
+        <!-- Question Panel -->
+        <div class="practice-q-panel">
+          <!-- Progress bar -->
+          <div class="practice-progress-bar">
+            <span class="ppb-text">Question <strong>17</strong> of 50</span>
+            <div class="ppb-track"><div class="ppb-fill"></div></div>
+            <div class="ppb-timer">
+              <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+              <span id="practiceTimer">18:44</span>
+            </div>
+          </div>
+
+          <!-- Question card -->
+          <div class="practice-q-card">
+            <div class="q-meta">
+              <span class="tag tag-amber">Pharmacology</span>
+              <span class="tag tag-red">Weak Area</span>
+              <button class="q-flag-btn" id="flagBtn" onclick="toggleFlag()">
+                <svg viewBox="0 0 24 24"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></svg>
+                Flag
+              </button>
+            </div>
+            <div class="q-text">
+              A nurse is administering heparin to a patient with deep vein thrombosis. The patient's aPTT result is reported as 120 seconds (normal therapeutic range: 60–100 seconds). Which of the following is the nurse's priority action?
+            </div>
+            <div class="q-options" id="practiceOptions">
+              <button class="q-opt" onclick="selectPracticeOpt(this,'wrong')">
+                <div class="q-opt-key">A</div>
+                <span>Continue the current infusion rate and reassess in 4 hours</span>
+              </button>
+              <button class="q-opt" onclick="selectPracticeOpt(this,'correct')">
+                <div class="q-opt-key">B</div>
+                <span>Hold the heparin infusion and notify the physician immediately</span>
+              </button>
+              <button class="q-opt" onclick="selectPracticeOpt(this,'wrong')">
+                <div class="q-opt-key">C</div>
+                <span>Administer protamine sulfate as prescribed antidote</span>
+              </button>
+              <button class="q-opt" onclick="selectPracticeOpt(this,'wrong')">
+                <div class="q-opt-key">D</div>
+                <span>Increase the heparin dose as the aPTT is within safe limits</span>
+              </button>
+            </div>
+
+            <!-- Rationale drawer -->
+            <div class="rationale-drawer" id="rationaleDrawer">
+              <div class="rat-header">
+                <div class="rat-icon"><svg viewBox="0 0 12 12"><polyline points="2 6 5 9 10 3"/></svg></div>
+                <div class="rat-title">Correct Answer: B — Rationale</div>
+              </div>
+              <div class="rat-text">
+                An aPTT of 120 seconds is <strong>supratherapeutic</strong> (therapeutic target is 60–100 seconds). This indicates excessive anticoagulation and places the patient at serious risk of bleeding. The nurse must hold the infusion and notify the physician immediately. Protamine sulfate (Option C) is the antidote but requires a physician's order — the nurse cannot administer it independently without a prescription.
+              </div>
+            </div>
+
+            <div class="q-actions" style="margin-top:16px;">
+              <button class="btn btn-ghost btn-sm" onclick="prevQuestion()">← Previous</button>
+              <button class="btn btn-dark btn-sm" id="nextBtn" onclick="nextQuestion()" disabled>Next Question →</button>
+              <span id="qXpGain" style="font-size:12px;font-weight:700;color:var(--amber);display:none;">+8 XP</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ════════════════════════════════
+         VIEW: MOCK EXAM
+    ════════════════════════════════ -->
+    <div class="view" id="view-mockexam">
+      <div class="mock-shell">
+        <div class="mock-topbar">
+          <div>
+            <div class="mock-logo">Nurse<span>Pass</span> · DigiProctor Simulation</div>
+          </div>
+          <div class="mock-meta">
+            <span class="mock-exam-name">KRCHN Paper 1 — August 2025 Mock</span>
+            <span class="mock-timer" id="mockTimer">01:58:34</span>
+          </div>
+          <button class="mock-save-btn" onclick="if(confirm('Submit exam?')){alert('Mock exam submitted! View results in Analytics.');}">Submit Exam</button>
+        </div>
+        <div class="mock-main">
+          <div class="mock-q-panel">
+            <div class="mock-q-meta">
+              <span>Question 23 of 100 · Medical–Surgical Nursing</span>
+              <span>Paper 1 · KRCHN Diploma</span>
+            </div>
+            <div class="mock-q-text">
+              A 58-year-old male patient is admitted with crushing substernal chest pain radiating to the left arm, diaphoresis, and nausea. His ECG shows ST elevation in leads II, III, and aVF. The nurse anticipates a diagnosis of:
+            </div>
+            <div class="mock-options" id="mockOptions">
+              <button class="mock-opt" onclick="selectMockOpt(this)"><div class="mock-opt-key">A</div><span>Unstable angina with lateral wall involvement</span></button>
+              <button class="mock-opt" onclick="selectMockOpt(this)"><div class="mock-opt-key">B</div><span>Inferior wall ST-elevation myocardial infarction (STEMI)</span></button>
+              <button class="mock-opt" onclick="selectMockOpt(this)"><div class="mock-opt-key">C</div><span>Aortic dissection with haemodynamic instability</span></button>
+              <button class="mock-opt" onclick="selectMockOpt(this)"><div class="mock-opt-key">D</div><span>Pericarditis with diffuse ST changes</span></button>
+            </div>
+            <div class="mock-nav-row">
+              <button class="mock-flag-btn">
+                <svg viewBox="0 0 24 24"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></svg>
+                Flag Question
+              </button>
+              <div class="mock-nav-btns">
+                <button class="mock-prev">← Prev</button>
+                <button class="mock-next">Next →</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="mock-side-panel">
+            <div class="mock-progress-card">
+              <div class="mpc-title">Exam Progress</div>
+              <div class="mpc-stats">
+                <div class="mpc-stat answered"><div class="mpc-stat-val">22</div><div class="mpc-stat-label">Answered</div></div>
+                <div class="mpc-stat"><div class="mpc-stat-val">77</div><div class="mpc-stat-label">Remaining</div></div>
+                <div class="mpc-stat flagged-s"><div class="mpc-stat-val">3</div><div class="mpc-stat-label">Flagged</div></div>
+                <div class="mpc-stat"><div class="mpc-stat-val">1</div><div class="mpc-stat-label">Skipped</div></div>
+              </div>
+              <div class="prog-track" style="height:10px;border-radius:var(--r-full);overflow:hidden;background:rgba(255,255,255,.1);">
+                <div style="height:100%;width:22%;background:var(--teal);border-radius:var(--r-full);"></div>
+              </div>
+              <div style="font-size:10px;color:rgba(255,255,255,.4);margin-top:6px;">22% complete</div>
+            </div>
+            <div class="mock-q-grid-wrap">
+              <div class="mqg-title">Question Navigator</div>
+              <div class="mock-q-grid" id="mockQGrid"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ════════════════════════════════
+         VIEW: FLASHCARDS
+    ════════════════════════════════ -->
+    <div class="view" id="view-flashcards">
+      <div class="page-header">
+        <div class="page-title">Flashcards</div>
+        <div class="page-sub">Spaced Repetition System — cards resurface at the optimal moment</div>
+      </div>
+      <div class="flashcard-page">
+        <!-- Deck Panel -->
+        <div class="deck-panel">
+          <div class="deck-title">Decks</div>
+          <ul class="deck-list">
+            <li class="deck-item active">
+              <div><div class="deck-name">Pharmacology</div><div style="font-size:11px;color:var(--mid);">124 cards</div></div>
+              <div class="deck-counts"><span class="dc-new">12 new</span><span class="dc-due">8 due</span></div>
+            </li>
+            <li class="deck-item">
+              <div><div class="deck-name">Medical Conditions</div><div style="font-size:11px;color:var(--mid);">86 cards</div></div>
+              <div class="deck-counts"><span class="dc-new">5 new</span><span class="dc-due">14 due</span></div>
+            </li>
+            <li class="deck-item">
+              <div><div class="deck-name">Midwifery Terms</div><div style="font-size:11px;color:var(--mid);">68 cards</div></div>
+              <div class="deck-counts"><span class="dc-due">21 due</span></div>
+            </li>
+            <li class="deck-item">
+              <div><div class="deck-name">Lab Values</div><div style="font-size:11px;color:var(--mid);">52 cards</div></div>
+              <div class="deck-counts"><span class="dc-new">2 new</span></div>
+            </li>
+            <li class="deck-item">
+              <div><div class="deck-name">Community Health</div><div style="font-size:11px;color:var(--mid);">94 cards</div></div>
+              <div class="deck-counts"><span class="dc-due">7 due</span></div>
+            </li>
+          </ul>
+          <button class="btn btn-outline btn-sm" style="width:100%;">+ New Deck</button>
+          <div class="uf-divider"></div>
+          <div class="uf-mode-title">Today's Due</div>
+          <div style="font-family:var(--ff-head);font-size:28px;font-weight:800;color:var(--teal);text-align:center;padding:8px 0;">43</div>
+          <div style="font-size:12px;color:var(--mid);text-align:center;">cards to review</div>
+        </div>
+
+        <!-- Flashcard Study Area -->
+        <div class="flashcard-study-area">
+          <div class="fc-progress-row">
+            <span style="font-size:13px;font-weight:700;color:var(--dark);">Card 8 of 20 — Pharmacology</span>
+            <div class="fc-status-dots">
+              <span style="font-size:10px;color:var(--mid);margin-right:4px;">New</span>
+              <div class="fc-dot new-d"></div><div class="fc-dot new-d"></div>
+              <span style="font-size:10px;color:var(--mid);margin:0 4px;">Due</span>
+              <div class="fc-dot due-d"></div>
+              <span style="font-size:10px;color:var(--mid);margin:0 4px;">Done</span>
+              <div class="fc-dot done-d"></div><div class="fc-dot done-d"></div><div class="fc-dot done-d"></div>
+            </div>
+          </div>
+
+          <div class="flashcard-container" id="flashcard" onclick="flipCard()" style="width:100%;">
+            <div class="flashcard-inner">
+              <div class="fc-face fc-front">
+                <div class="fc-face-label">💊 Pharmacology · Tap to reveal</div>
+                <div class="fc-face-text">What is the mechanism of action of heparin, and what monitoring parameter is used to assess its therapeutic effectiveness?</div>
+                <div class="fc-tap-hint"><svg viewBox="0 0 24 24"><path d="M7 2l-4 4 4 4"/><path d="M3 6h18"/></svg>Tap card to flip</div>
+              </div>
+              <div class="fc-face fc-back">
+                <div class="fc-face-label">✅ Answer</div>
+                <span class="fc-answer-highlight">aPTT Monitoring</span>
+                <div class="fc-face-text">Heparin acts by activating <strong>antithrombin III</strong>, which inhibits thrombin (Factor IIa) and Factor Xa, preventing the conversion of fibrinogen to fibrin. Therapeutic effectiveness is monitored by the <strong>activated partial thromboplastin time (aPTT)</strong>, maintained at 1.5–2.5× the control value (approximately 60–100 seconds).</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="fc-rating-row" id="fcRatingRow" style="display:none;">
+            <button class="fc-rate-btn again" onclick="rateCard('again')">Again<span class="fc-days">< 1 min</span></button>
+            <button class="fc-rate-btn hard" onclick="rateCard('hard')">Hard<span class="fc-days">1 day</span></button>
+            <button class="fc-rate-btn good" onclick="rateCard('good')">Good<span class="fc-days">3 days</span></button>
+            <button class="fc-rate-btn easy" onclick="rateCard('easy')">Easy<span class="fc-days">7 days</span></button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ════════════════════════════════
+         VIEW: ANALYTICS
+    ════════════════════════════════ -->
+    <div class="view" id="view-analytics">
+      <div class="page-header">
+        <div class="page-title">Analytics & Progress</div>
+        <div class="page-sub">Deep dive into your performance — updated after every session</div>
+      </div>
+      <div class="analytics-layout">
+        <div class="analytics-main">
+
+          <!-- Exam readiness -->
+          <div class="readiness-card">
+            <div class="readiness-ring-wrap">
+              <svg viewBox="0 0 100 100">
+                <circle class="r-ring-bg" cx="50" cy="50" r="43"/>
+                <circle class="r-ring-fill" cx="50" cy="50" r="43"/>
+              </svg>
+              <div class="r-ring-text">75%</div>
+            </div>
+            <div class="readiness-info">
+              <h3>Exam Readiness Score</h3>
+              <p>Based on your 1,284 questions answered and 3 mock exams completed</p>
+              <div class="readiness-tags">
+                <span class="r-tag good-tag">✓ Med-Surg Strong</span>
+                <span class="r-tag good-tag">✓ Community Health</span>
+                <span class="r-tag bad-tag">⚠ Pharmacology Weak</span>
+                <span class="r-tag bad-tag">⚠ Psychiatry</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Unit breakdown -->
+          <div class="unit-detail-card">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+              <div class="card-title">Unit-by-Unit Mastery</div>
+              <span class="tag tag-teal">KRCHN Paper 1</span>
+            </div>
+            <div class="udc-row">
+              <span class="udc-name">Medical–Surgical Nursing</span>
+              <div class="udc-bar-wrap"><div class="prog-track"><div class="prog-fill prog-green" style="width:82%;"></div></div></div>
+              <span class="udc-pct" style="color:var(--green);">82%</span>
+              <button class="udc-drill">Drill</button>
+            </div>
+            <div class="udc-row">
+              <span class="udc-name">Community Health</span>
+              <div class="udc-bar-wrap"><div class="prog-track"><div class="prog-fill prog-teal" style="width:78%;"></div></div></div>
+              <span class="udc-pct" style="color:var(--teal);">78%</span>
+              <button class="udc-drill">Drill</button>
+            </div>
+            <div class="udc-row">
+              <span class="udc-name">Maternal & Child Health</span>
+              <div class="udc-bar-wrap"><div class="prog-track"><div class="prog-fill prog-teal" style="width:71%;"></div></div></div>
+              <span class="udc-pct" style="color:var(--teal);">71%</span>
+              <button class="udc-drill">Drill</button>
+            </div>
+            <div class="udc-row">
+              <span class="udc-name">Paediatric Nursing</span>
+              <div class="udc-bar-wrap"><div class="prog-track"><div class="prog-fill prog-amber" style="width:67%;"></div></div></div>
+              <span class="udc-pct" style="color:var(--amber-dark);">67%</span>
+              <button class="udc-drill">Drill</button>
+            </div>
+            <div class="udc-row">
+              <span class="udc-name">Psychiatric Nursing</span>
+              <div class="udc-bar-wrap"><div class="prog-track"><div class="prog-fill prog-amber" style="width:62%;"></div></div></div>
+              <span class="udc-pct" style="color:var(--amber-dark);">62%</span>
+              <button class="udc-drill">Drill ⚠</button>
+            </div>
+            <div class="udc-row">
+              <span class="udc-name">Pharmacology</span>
+              <div class="udc-bar-wrap"><div class="prog-track"><div class="prog-fill prog-red" style="width:54%;"></div></div></div>
+              <span class="udc-pct" style="color:var(--red);">54%</span>
+              <button class="udc-drill" style="background:#FFE8E8;color:var(--red);border-color:var(--red);">Drill ⚠</button>
+            </div>
+          </div>
+
+          <!-- Score trend -->
+          <div class="trend-card">
+            <div class="card-title" style="margin-bottom:16px;">Weekly Score Trend</div>
+            <div class="trend-bars">
+              <div class="trend-bar-col">
+                <div class="trend-bar" style="height:55%;background:var(--teal-light);"><div class="trend-tip">65%</div></div>
+                <span class="trend-day">Mon</span>
+              </div>
+              <div class="trend-bar-col">
+                <div class="trend-bar" style="height:62%;"><div class="trend-tip">68%</div></div>
+                <span class="trend-day">Tue</span>
+              </div>
+              <div class="trend-bar-col">
+                <div class="trend-bar" style="height:70%;background:var(--teal-light);"><div class="trend-tip">71%</div></div>
+                <span class="trend-day">Wed</span>
+              </div>
+              <div class="trend-bar-col">
+                <div class="trend-bar" style="height:67%;"><div class="trend-tip">69%</div></div>
+                <span class="trend-day">Thu</span>
+              </div>
+              <div class="trend-bar-col">
+                <div class="trend-bar" style="height:75%;background:var(--teal-light);"><div class="trend-tip">75%</div></div>
+                <span class="trend-day">Fri</span>
+              </div>
+              <div class="trend-bar-col">
+                <div class="trend-bar" style="height:78%;background:var(--teal);"><div class="trend-tip">78%</div></div>
+                <span class="trend-day">Sat</span>
+              </div>
+              <div class="trend-bar-col">
+                <div class="trend-bar" style="height:80%;background:var(--teal);"><div class="trend-tip">80% 🔥</div></div>
+                <span class="trend-day">Today</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Mock exam history -->
+          <div class="mock-history">
+            <div class="card-title" style="margin-bottom:16px;">Mock Exam History</div>
+            <table class="mh-table">
+              <thead><tr><th>Date</th><th>Exam</th><th>Score</th><th>Time Used</th><th>Result</th></tr></thead>
+              <tbody>
+                <tr>
+                  <td>Today</td>
+                  <td>KRCHN Paper 1 Mock #3</td>
+                  <td><span class="mh-score" style="color:var(--green);">78/100</span></td>
+                  <td>1h 52m</td>
+                  <td><span class="tag tag-green">Pass</span></td>
+                </tr>
+                <tr>
+                  <td>3 days ago</td>
+                  <td>KRCHN Paper 2 Mock #2</td>
+                  <td><span class="mh-score" style="color:var(--amber-dark);">64/100</span></td>
+                  <td>1h 48m</td>
+                  <td><span class="tag tag-amber">Borderline</span></td>
+                </tr>
+                <tr>
+                  <td>1 week ago</td>
+                  <td>KRCHN Paper 1 Mock #2</td>
+                  <td><span class="mh-score" style="color:var(--amber-dark);">68/100</span></td>
+                  <td>1h 55m</td>
+                  <td><span class="tag tag-green">Pass</span></td>
+                </tr>
+                <tr>
+                  <td>2 weeks ago</td>
+                  <td>KRCHN Paper 1 Mock #1</td>
+                  <td><span class="mh-score" style="color:var(--red);">54/100</span></td>
+                  <td>2h 00m</td>
+                  <td><span class="tag tag-red">Fail</span></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Side panel -->
+        <div class="analytics-side">
+          <div class="peer-card">
+            <div class="card-title">Peer Percentile</div>
+            <div class="peer-pct-display">
+              <div class="peer-pct-num">68th</div>
+              <div class="peer-pct-label">You score better than 68% of candidates in your exam cycle</div>
+            </div>
+            <div class="peer-bar-row">
+              <div class="peer-bar-label">Score distribution — August cycle</div>
+              <div class="peer-bell-wrap">
+                <div class="peer-bell-fill" style="width:100%;"></div>
+                <div class="peer-marker" style="left:68%;"></div>
+              </div>
+              <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--mid);margin-top:4px;">
+                <span>0%</span><span>You → 68th</span><span>100%</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-title" style="margin-bottom:14px;">Study Stats</div>
+            <div style="display:flex;flex-direction:column;gap:12px;">
+              <div>
+                <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:6px;">
+                  <span style="font-weight:600;color:var(--dark);">Questions answered</span>
+                  <strong>1,284</strong>
+                </div>
+                <div class="prog-track"><div class="prog-fill prog-teal" style="width:64%;"></div></div>
+                <div style="font-size:11px;color:var(--mid);margin-top:2px;">64% of question bank</div>
+              </div>
+              <div>
+                <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:6px;">
+                  <span style="font-weight:600;color:var(--dark);">Accuracy rate</span>
+                  <strong style="color:var(--teal);">74%</strong>
+                </div>
+                <div class="prog-track"><div class="prog-fill prog-teal" style="width:74%;"></div></div>
+              </div>
+              <div>
+                <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:6px;">
+                  <span style="font-weight:600;color:var(--dark);">Total study time</span>
+                  <strong>38h 20m</strong>
+                </div>
+              </div>
+              <div>
+                <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:6px;">
+                  <span style="font-weight:600;color:var(--dark);">Mock exams taken</span>
+                  <strong>4</strong>
+                </div>
+              </div>
+              <div style="padding:12px;background:var(--teal-xlight);border-radius:var(--r-sm);">
+                <div style="font-size:12px;font-weight:700;color:var(--teal);">📈 Projected Score</div>
+                <div style="font-family:var(--ff-head);font-size:24px;font-weight:800;color:var(--dark);margin-top:2px;">76–80%</div>
+                <div style="font-size:12px;color:var(--mid);">Based on current trajectory</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ════════════════════════════════
+         VIEW: ACHIEVEMENTS
+    ════════════════════════════════ -->
+    <div class="view" id="view-achievements">
+      <div class="page-header">
+        <div class="page-title">Achievements & Gamification</div>
+        <div class="page-sub">Track your XP, streaks, badges, and compete on the leaderboard</div>
+      </div>
+
+      <!-- Level banner -->
+      <div class="level-banner">
+        <div class="level-badge">
+          <span class="level-num">12</span>
+          <span class="level-word">Level</span>
+        </div>
+        <div class="level-info">
+          <h3>Senior Scholar 🎓</h3>
+          <p>Level 13 unlocks at 3,200 XP — you need 360 more XP. Keep studying!</p>
+          <div class="xp-bar-row">
+            <div class="xp-track"><div class="xp-fill" style="width:79%;"></div></div>
+            <span class="xp-text">2,840 / 3,200 XP</span>
+          </div>
+        </div>
+        <div class="level-streak">
+          <div class="ls-num">🔥 14</div>
+          <div class="ls-label">Day streak</div>
+        </div>
+      </div>
+
+      <!-- Streak calendar -->
+      <div class="streak-cal">
+        <div style="display:flex;justify-content:space-between;align-items:center;">
+          <div class="card-title">Study Streak Calendar — May 2026</div>
+          <span class="tag tag-amber">14 day streak 🔥</span>
+        </div>
+        <div class="streak-day-labels">
+          <div class="sdl">Sun</div><div class="sdl">Mon</div><div class="sdl">Tue</div>
+          <div class="sdl">Wed</div><div class="sdl">Thu</div><div class="sdl">Fri</div><div class="sdl">Sat</div>
+        </div>
+        <div class="streak-cal-grid" id="streakCalGrid"></div>
+      </div>
+
+      <!-- Daily challenges -->
+      <div class="daily-challenges" style="margin-bottom:20px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;">
+          <div class="card-title">Today's Challenges</div>
+          <span class="tag tag-green">2/4 Complete</span>
+        </div>
+        <div class="dc-list">
+          <div class="dc-item">
+            <div class="dc-check done" onclick="toggleCheck(this)"><svg viewBox="0 0 14 14"><polyline points="2 7 5 10 12 3"/></svg></div>
+            <div class="dc-challenge"><p>Answer 20 Pharmacology questions</p><small>Completed · 08:42 AM</small></div>
+            <span class="dc-xp-pill">+60 XP ✓</span>
+          </div>
+          <div class="dc-item">
+            <div class="dc-check done" onclick="toggleCheck(this)"><svg viewBox="0 0 14 14"><polyline points="2 7 5 10 12 3"/></svg></div>
+            <div class="dc-challenge"><p>Review 15 Flashcards</p><small>Completed · 09:15 AM</small></div>
+            <span class="dc-xp-pill">+30 XP ✓</span>
+          </div>
+          <div class="dc-item">
+            <div class="dc-check" onclick="toggleCheck(this)"><svg viewBox="0 0 14 14"><polyline points="2 7 5 10 12 3"/></svg></div>
+            <div class="dc-challenge"><p>Score above 75% in a 30-question practice</p><small>Not started yet</small></div>
+            <span class="dc-xp-pill">+80 XP</span>
+          </div>
+          <div class="dc-item">
+            <div class="dc-check" onclick="toggleCheck(this)"><svg viewBox="0 0 14 14"><polyline points="2 7 5 10 12 3"/></svg></div>
+            <div class="dc-challenge"><p>Complete a full Mock Exam</p><small>Not started yet</small></div>
+            <span class="dc-xp-pill">+200 XP</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Badges -->
+      <div class="card-title" style="margin-bottom:14px;">Achievement Badges</div>
+      <div class="badges-grid">
+        <div class="badge-item earned">
+          <span class="badge-emoji">🔥</span>
+          <div class="badge-name">Streak Master</div>
+          <div class="badge-desc">14-day study streak</div>
+          <span class="badge-earned-chip">✓ Earned</span>
+        </div>
+        <div class="badge-item earned">
+          <span class="badge-emoji">💊</span>
+          <div class="badge-name">Pharma Warrior</div>
+          <div class="badge-desc">100 Pharmacology questions answered</div>
+          <span class="badge-earned-chip">✓ Earned</span>
+        </div>
+        <div class="badge-item earned">
+          <span class="badge-emoji">🎯</span>
+          <div class="badge-name">Mock Maestro</div>
+          <div class="badge-desc">Completed 3 full mock exams</div>
+          <span class="badge-earned-chip">✓ Earned</span>
+        </div>
+        <div class="badge-item earned">
+          <span class="badge-emoji">⚡</span>
+          <div class="badge-name">Speed Demon</div>
+          <div class="badge-desc">Finished exam 20 min early</div>
+          <span class="badge-earned-chip">✓ Earned</span>
+        </div>
+        <div class="badge-item locked">
+          <span class="badge-emoji">🏆</span>
+          <div class="badge-name">Top 10%</div>
+          <div class="badge-desc">Reach 90th percentile</div>
+          <div style="font-size:11px;color:var(--mid);margin-top:8px;">🔒 Locked</div>
+        </div>
+        <div class="badge-item locked">
+          <span class="badge-emoji">🧠</span>
+          <div class="badge-name">Knowledge God</div>
+          <div class="badge-desc">Complete all 5,000 MCQs</div>
+          <div style="font-size:11px;color:var(--mid);margin-top:8px;">🔒 Locked</div>
+        </div>
+        <div class="badge-item locked">
+          <span class="badge-emoji">🌟</span>
+          <div class="badge-name">Perfect Score</div>
+          <div class="badge-desc">Score 90%+ on any mock exam</div>
+          <div style="font-size:11px;color:var(--mid);margin-top:8px;">🔒 Locked</div>
+        </div>
+        <div class="badge-item locked">
+          <span class="badge-emoji">👥</span>
+          <div class="badge-name">Team Captain</div>
+          <div class="badge-desc">Create and lead a study group</div>
+          <div style="font-size:11px;color:var(--mid);margin-top:8px;">🔒 Locked</div>
+        </div>
+      </div>
+
+      <!-- Leaderboard -->
+      <div class="leaderboard-section">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
+          <div class="card-title">Leaderboard</div>
+          <div class="lb-tabs">
+            <div class="lb-tab active" onclick="setLbTab(this,'weekly')">Weekly</div>
+            <div class="lb-tab" onclick="setLbTab(this,'monthly')">Monthly</div>
+            <div class="lb-tab" onclick="setLbTab(this,'alltime')">All Time</div>
+          </div>
+        </div>
+        <div class="card" style="padding:0;overflow:hidden;">
+          <div class="leaderboard-row" style="background:rgba(245,166,35,.05);">
+            <div class="lb-rank gold">1</div>
+            <span class="lb-trophy">🥇</span>
+            <div class="lb-avatar" style="background:var(--amber-light);color:var(--amber-dark);">FK</div>
+            <div><div class="lb-name">Faith K.</div><div class="lb-cadre">KRCHN · Nairobi</div></div>
+            <div class="lb-bar-wrap"><div class="prog-track"><div class="prog-fill prog-amber" style="width:95%;"></div></div></div>
+            <div class="lb-score">3,420</div>
+          </div>
+          <div class="leaderboard-row">
+            <div class="lb-rank silver">2</div>
+            <span class="lb-trophy">🥈</span>
+            <div class="lb-avatar" style="background:var(--teal-light);color:var(--teal);">JO</div>
+            <div><div class="lb-name">James O.</div><div class="lb-cadre">BScN · Mombasa</div></div>
+            <div class="lb-bar-wrap"><div class="prog-track"><div class="prog-fill prog-teal" style="width:88%;"></div></div></div>
+            <div class="lb-score">3,160</div>
+          </div>
+          <div class="leaderboard-row">
+            <div class="lb-rank bronze">3</div>
+            <span class="lb-trophy">🥉</span>
+            <div class="lb-avatar" style="background:#DFFBF1;color:#0F6E56;">PN</div>
+            <div><div class="lb-name">Patricia N.</div><div class="lb-cadre">BScN · Eldoret</div></div>
+            <div class="lb-bar-wrap"><div class="prog-track"><div class="prog-fill prog-green" style="width:82%;"></div></div></div>
+            <div class="lb-score">2,980</div>
+          </div>
+          <div class="leaderboard-row" style="background:rgba(245,166,35,.04);">
+            <div class="lb-rank" style="color:var(--teal);">7</div>
+            <span class="lb-trophy" style="opacity:.4;">—</span>
+            <div class="lb-avatar" style="background:var(--teal);color:var(--amber);">MW</div>
+            <div><div class="lb-name">Mercy W.<span class="lb-you">You</span></div><div class="lb-cadre">KRCHN · Nairobi</div></div>
+            <div class="lb-bar-wrap"><div class="prog-track"><div class="prog-fill prog-teal" style="width:74%;"></div></div></div>
+            <div class="lb-score">2,840</div>
+          </div>
+          <div class="leaderboard-row">
+            <div class="lb-rank">8</div>
+            <span class="lb-trophy" style="opacity:.3;">—</span>
+            <div class="lb-avatar" style="background:var(--amber-light);color:var(--amber-dark);">KM</div>
+            <div><div class="lb-name">Kevin M.</div><div class="lb-cadre">KRCHN · Nakuru</div></div>
+            <div class="lb-bar-wrap"><div class="prog-track"><div class="prog-fill prog-amber" style="width:70%;"></div></div></div>
+            <div class="lb-score">2,760</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ════════════════════════════════
+         VIEW: STUDY GROUPS
+    ════════════════════════════════ -->
+    <div class="view" id="view-groups">
+      <div class="page-header">
+        <div class="page-title">Study Groups</div>
+        <div class="page-sub">Study alongside your peers, share progress, and compete together</div>
+      </div>
+      <div class="groups-layout">
+        <div class="groups-main">
+          <div class="groups-header-row">
+            <div class="group-search">
+              <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+              <input type="text" placeholder="Search groups by cadre, name..." />
+            </div>
+            <button class="btn btn-dark btn-sm" style="flex-shrink:0;">+ Create Group</button>
+          </div>
+
+          <div class="group-card" style="border-color:var(--teal);">
+            <div class="group-avatar">🏥</div>
+            <div class="group-info">
+              <div class="group-name">KRCHN Cohort A — August 2025</div>
+              <div class="group-desc">Focused KRCHN diploma revision group for the August exam cycle. Daily challenges, mock debriefs, and peer support.</div>
+              <div class="group-meta-row">
+                <span class="group-meta-item"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>24 members</span>
+                <span class="group-meta-item"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>Active now</span>
+                <span class="tag tag-green">Your Group</span>
+              </div>
+              <div class="group-members-row" style="margin-top:8px;">
+                <div class="gm-avatar">MW</div><div class="gm-avatar">FK</div><div class="gm-avatar">JO</div>
+                <div class="gm-avatar">PN</div><div class="gm-avatar gm-more">+20</div>
+              </div>
+            </div>
+            <div class="group-actions">
+              <button class="btn btn-dark btn-sm">Enter Group</button>
+              <span style="font-size:11px;color:var(--teal);font-weight:700;">Rank #7</span>
+            </div>
+          </div>
+
+          <div class="group-card">
+            <div class="group-avatar">🎓</div>
+            <div class="group-info">
+              <div class="group-name">BScN Degree Nurses — Moi University</div>
+              <div class="group-desc">BScN-specific study group for Moi University finalists. Degree-level MCQs and clinical reasoning focus.</div>
+              <div class="group-meta-row">
+                <span class="group-meta-item"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>18 members</span>
+                <span class="group-meta-item"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>3 active today</span>
+                <span class="tag tag-teal">Open to Join</span>
+              </div>
+            </div>
+            <div class="group-actions">
+              <button class="btn btn-outline btn-sm">Request Join</button>
+            </div>
+          </div>
+
+          <div class="group-card">
+            <div class="group-avatar">⚕️</div>
+            <div class="group-info">
+              <div class="group-name">Critical Care ICU Nurses — Higher Dip</div>
+              <div class="group-desc">Higher Diploma Critical Care (KRCCN) revision group. Hemodynamics, ventilators, advanced pharmacology.</div>
+              <div class="group-meta-row">
+                <span class="group-meta-item"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>12 members</span>
+                <span class="tag tag-amber">Invite Only</span>
+              </div>
+            </div>
+            <div class="group-actions">
+              <button class="btn btn-ghost btn-sm">Request Invite</button>
+            </div>
+          </div>
+
+          <div class="group-card">
+            <div class="group-avatar">🌍</div>
+            <div class="group-info">
+              <div class="group-name">NCLEX Aspirants Kenya</div>
+              <div class="group-desc">For Kenyan nurses who have passed NCK and are now preparing for NCLEX-RN for US/UK migration.</div>
+              <div class="group-meta-row">
+                <span class="group-meta-item"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>67 members</span>
+                <span class="group-meta-item"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/></svg>Very active</span>
+                <span class="tag tag-teal">Open to Join</span>
+              </div>
+            </div>
+            <div class="group-actions">
+              <button class="btn btn-outline btn-sm">Join Group</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Group sidebar -->
+        <div class="group-sidebar">
+          <div class="your-group-card">
+            <div class="ygc-name">KRCHN Cohort A 🏥</div>
+            <div class="ygc-sub">Your group · 24 members · August cycle</div>
+            <div class="ygc-members">
+              <div class="ygc-member">
+                <div class="ygcm-av">MW</div>
+                <div class="ygcm-info" style="flex:1;">
+                  <div class="ygcm-name">Mercy W. <span style="font-size:9px;background:rgba(245,166,35,.3);padding:1px 5px;border-radius:4px;color:var(--amber);">You</span></div>
+                  <div class="ygcm-score">74% avg · Rank #7</div>
+                </div>
+                <div class="ygcm-bar-wrap"><div class="ygcm-bar" style="width:74%;"></div></div>
+              </div>
+              <div class="ygc-member">
+                <div class="ygcm-av">FK</div>
+                <div class="ygcm-info" style="flex:1;"><div class="ygcm-name">Faith K.</div><div class="ygcm-score">88% avg · 🥇 Rank #1</div></div>
+                <div class="ygcm-bar-wrap"><div class="ygcm-bar" style="width:88%;background:#25D366;"></div></div>
+              </div>
+              <div class="ygc-member">
+                <div class="ygcm-av">AM</div>
+                <div class="ygcm-info" style="flex:1;"><div class="ygcm-name">Agnes M.</div><div class="ygcm-score">71% avg · Rank #9</div></div>
+                <div class="ygcm-bar-wrap"><div class="ygcm-bar" style="width:71%;"></div></div>
+              </div>
+            </div>
+            <button class="btn btn-primary btn-sm" style="width:100%;">View Full Group →</button>
+          </div>
+
+          <div class="group-challenge-card">
+            <div class="gcc-header">
+              🏆 Weekly Group Challenge
+            </div>
+            <div style="font-size:12px;color:var(--mid);margin-bottom:12px;">Most questions answered correctly this week</div>
+            <div class="gcc-item">
+              <div class="gcc-rank top">1</div>
+              <div class="gcc-name">Faith K.</div>
+              <div class="gcc-score">340</div>
+            </div>
+            <div class="gcc-item">
+              <div class="gcc-rank top">2</div>
+              <div class="gcc-name">James O.</div>
+              <div class="gcc-score">298</div>
+            </div>
+            <div class="gcc-item" style="background:var(--amber-light);border-radius:var(--r-sm);padding:0 8px;">
+              <div class="gcc-rank">7</div>
+              <div class="gcc-name">Mercy W. <span class="gcc-you-badge">You</span></div>
+              <div class="gcc-score">182</div>
+            </div>
+            <div class="gcc-item">
+              <div class="gcc-rank">8</div>
+              <div class="gcc-name">Agnes M.</div>
+              <div class="gcc-score">165</div>
+            </div>
+            <div style="margin-top:12px;font-size:12px;color:var(--mid);text-align:center;">Ends in 3 days</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ════════════════════════════════
+         VIEW: SETTINGS & PROFILE
+    ════════════════════════════════ -->
+    <div class="view" id="view-settings">
+      <div class="page-header">
+        <div class="page-title">Settings & Profile</div>
+        <div class="page-sub">Manage your account, preferences, and study configuration</div>
+      </div>
+      <div class="settings-layout">
+        <div class="settings-nav">
+          <div class="settings-nav-item active" onclick="setSettingsSection(this,'profile')">
+            <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            Profile
+          </div>
+          <div class="settings-nav-item" onclick="setSettingsSection(this,'exam')">
+            <svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/></svg>
+            Exam Settings
+          </div>
+          <div class="settings-nav-item" onclick="setSettingsSection(this,'notifications')">
+            <svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/></svg>
+            Notifications
+          </div>
+          <div class="settings-nav-item" onclick="setSettingsSection(this,'display')">
+            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/></svg>
+            Display & Theme
+          </div>
+          <div class="settings-nav-item" onclick="setSettingsSection(this,'plan')">
+            <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01z"/></svg>
+            Plan & Billing
+          </div>
+        </div>
+
+        <div class="settings-content">
+          <!-- Profile section -->
+          <div id="ss-profile">
+            <div class="profile-card">
+              <div class="profile-avatar-big">MW</div>
+              <div class="profile-info">
+                <h3>Mercy Wanjiku</h3>
+                <p>mercy.wanjiku@email.com · +254 712 345 678</p>
+                <div class="profile-tags">
+                  <span class="tag tag-teal">KRCHN Diploma</span>
+                  <span class="tag tag-amber">Pro Plan</span>
+                  <span class="tag tag-green">Level 12</span>
+                </div>
+              </div>
+            </div>
+            <div class="setting-section" style="margin-top:16px;">
+              <div class="setting-section-title">Personal Information</div>
+              <div class="setting-section-sub">Update your profile details</div>
+              <div class="grid-2">
+                <div class="input-group"><label class="input-label">Full Name</label><input class="input-field" value="Mercy Wanjiku" type="text"/></div>
+                <div class="input-group"><label class="input-label">Phone Number</label><input class="input-field" value="+254 712 345 678" type="tel"/></div>
+                <div class="input-group"><label class="input-label">Email Address</label><input class="input-field" value="mercy.wanjiku@email.com" type="email"/></div>
+                <div class="input-group"><label class="input-label">Institution / College</label><input class="input-field" value="KMTC Nairobi" type="text"/></div>
+              </div>
+              <button class="btn btn-dark btn-sm">Save Changes</button>
+            </div>
+          </div>
+
+          <!-- Exam section (shown on tab click) -->
+          <div id="ss-exam" style="display:none;">
+            <div class="setting-section">
+              <div class="setting-section-title">Exam Configuration</div>
+              <div class="setting-section-sub">Set your cadre and target exam date for your personalised study plan</div>
+              <div class="input-group">
+                <label class="input-label">Your Cadre</label>
+                <div class="select-cadre-grid">
+                  <div class="cadre-option active">
+                    <div class="cadre-option-icon">🏥</div>
+                    <div class="cadre-option-name">KRCHN</div>
+                    <div class="cadre-option-sub">Diploma</div>
+                  </div>
+                  <div class="cadre-option">
+                    <div class="cadre-option-icon">🎓</div>
+                    <div class="cadre-option-name">BScN</div>
+                    <div class="cadre-option-sub">Degree</div>
+                  </div>
+                  <div class="cadre-option">
+                    <div class="cadre-option-icon">⚕️</div>
+                    <div class="cadre-option-name">Higher Dip</div>
+                    <div class="cadre-option-sub">Specialty</div>
+                  </div>
+                </div>
+              </div>
+              <div class="input-group"><label class="input-label">Target Exam Date</label><input class="input-field" value="2025-08-15" type="date"/></div>
+              <button class="btn btn-dark btn-sm">Update Exam Settings</button>
+            </div>
+          </div>
+
+          <!-- Notifications (hidden) -->
+          <div id="ss-notifications" style="display:none;">
+            <div class="setting-section">
+              <div class="setting-section-title">Notifications</div>
+              <div class="setting-section-sub">Control how and when NursePass contacts you</div>
+              <div class="setting-row">
+                <div class="setting-row-info"><div class="setting-row-label">Daily study reminder</div><div class="setting-row-desc">WhatsApp message at your preferred study time</div></div>
+                <div class="toggle-switch on" onclick="this.classList.toggle('on')"></div>
+              </div>
+              <div class="setting-row">
+                <div class="setting-row-info"><div class="setting-row-label">Daily MCQ via WhatsApp</div><div class="setting-row-desc">Receive 5 NCK questions every morning at 7:00 AM</div></div>
+                <div class="toggle-switch on" onclick="this.classList.toggle('on')"></div>
+              </div>
+              <div class="setting-row">
+                <div class="setting-row-info"><div class="setting-row-label">Streak at-risk alert</div><div class="setting-row-desc">Notify me at 9 PM if I haven't studied today</div></div>
+                <div class="toggle-switch on" onclick="this.classList.toggle('on')"></div>
+              </div>
+              <div class="setting-row">
+                <div class="setting-row-info"><div class="setting-row-label">Exam registration reminders</div><div class="setting-row-desc">Alert me 30 days and 7 days before NCK registration closes</div></div>
+                <div class="toggle-switch on" onclick="this.classList.toggle('on')"></div>
+              </div>
+              <div class="setting-row">
+                <div class="setting-row-info"><div class="setting-row-label">Group challenge updates</div><div class="setting-row-desc">Daily ranking updates from your study groups</div></div>
+                <div class="toggle-switch" onclick="this.classList.toggle('on')"></div>
+              </div>
+              <div class="setting-row">
+                <div class="setting-row-info"><div class="setting-row-label">New badge earned</div><div class="setting-row-desc">Push notification when you unlock an achievement</div></div>
+                <div class="toggle-switch on" onclick="this.classList.toggle('on')"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Display (hidden) -->
+          <div id="ss-display" style="display:none;">
+            <div class="setting-section">
+              <div class="setting-section-title">Display & Accessibility</div>
+              <div class="setting-section-sub">Personalise how NursePass looks and feels</div>
+              <div class="setting-row">
+                <div class="setting-row-info"><div class="setting-row-label">Dark Mode</div><div class="setting-row-desc">Easy on your eyes when studying at night</div></div>
+                <div class="toggle-switch" id="darkModeSettingToggle" onclick="toggleDark();this.classList.toggle('on')"></div>
+              </div>
+              <div class="setting-row">
+                <div class="setting-row-info"><div class="setting-row-label">Large Text Mode</div><div class="setting-row-desc">Increase font size for easier reading on small screens</div></div>
+                <div class="toggle-switch" onclick="this.classList.toggle('on')"></div>
+              </div>
+              <div class="setting-row">
+                <div class="setting-row-info"><div class="setting-row-label">Sound Effects</div><div class="setting-row-desc">Play sound on correct / incorrect answers</div></div>
+                <div class="toggle-switch on" onclick="this.classList.toggle('on')"></div>
+              </div>
+              <div class="setting-row">
+                <div class="setting-row-info"><div class="setting-row-label">Animation Reduced</div><div class="setting-row-desc">Disable transitions and animations</div></div>
+                <div class="toggle-switch" onclick="this.classList.toggle('on')"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Plan (hidden) -->
+          <div id="ss-plan" style="display:none;">
+            <div class="setting-section">
+              <div class="setting-section-title">Current Plan — Pro</div>
+              <div class="setting-section-sub">Your plan details and billing information</div>
+              <div style="background:var(--teal-xlight);border:1.5px solid var(--border);border-radius:var(--r-lg);padding:20px;margin-bottom:20px;">
+                <div style="display:flex;justify-content:space-between;align-items:flex-start;">
+                  <div>
+                    <div style="font-family:var(--ff-head);font-size:20px;font-weight:800;color:var(--teal);">Pro Plan</div>
+                    <div style="font-size:13px;color:var(--mid);margin-top:2px;">60-day access · KRCHN Track</div>
+                  </div>
+                  <span class="tag tag-teal" style="font-size:12px;">Active</span>
+                </div>
+                <div style="margin-top:14px;">
+                  <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:6px;"><span style="color:var(--mid);">Access expires</span><strong>July 5, 2025</strong></div>
+                  <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:6px;"><span style="color:var(--mid);">Days remaining</span><strong style="color:var(--teal);">23 days</strong></div>
+                  <div style="display:flex;justify-content:space-between;font-size:13px;"><span style="color:var(--mid);">Paid via</span><strong>M-Pesa · KSh 2,500</strong></div>
+                </div>
+              </div>
+              <div class="prog-track" style="height:10px;margin-bottom:8px;">
+                <div class="prog-fill prog-teal" style="width:62%;"></div>
+              </div>
+              <div style="font-size:12px;color:var(--mid);margin-bottom:20px;">37 of 60 days used</div>
+              <button class="btn btn-primary" style="margin-right:10px;">Upgrade to Elite Plan</button>
+              <button class="btn btn-ghost btn-sm">View Payment History</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- end .content -->
+</div><!-- end .main-area -->
+
+<!-- Mobile toggle button -->
+<button class="mobile-sidebar-toggle" id="mobileToggle" onclick="toggleSidebar()">
+  <svg viewBox="0 0 24 24"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+</button>
+
+<script>
+/* ═══════════════════════
+   NAVIGATION
+═══════════════════════ */
+const viewTitles = {
+  home:'Dashboard',practice:'Practice MCQs',mockexam:'Mock Exam',
+  flashcards:'Flashcards',analytics:'Analytics',achievements:'Achievements',
+  groups:'Study Groups',settings:'Settings'
+};
+function showView(id, el) {
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  document.getElementById('view-'+id).classList.add('active');
+  document.querySelectorAll('.sidebar-nav a').forEach(a=>a.classList.remove('active'));
+  if(el) el.classList.add('active');
+  document.getElementById('breadcrumbTitle').textContent = viewTitles[id]||'Dashboard';
+  // close mobile sidebar
+  if(window.innerWidth<=900){
+    document.getElementById('sidebar').classList.remove('open');
+    document.getElementById('sidebarOverlay').classList.remove('show');
+  }
+}
+
+/* ═══════════════════════
+   DARK MODE
+═══════════════════════ */
+function toggleDark(){
+  document.body.classList.toggle('dark');
+  const label=document.getElementById('darkToggleLabel');
+  label.textContent = document.body.classList.contains('dark') ? '☀️ Light' : '🌙 Dark';
+}
+
+/* ═══════════════════════
+   MOBILE SIDEBAR
+═══════════════════════ */
+function toggleSidebar(){
+  document.getElementById('sidebar').classList.toggle('open');
+  document.getElementById('sidebarOverlay').classList.toggle('show');
+}
+function closeSidebar(){
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('sidebarOverlay').classList.remove('show');
+}
+
+/* ═══════════════════════
+   FLASHCARD
+═══════════════════════ */
+function flipCard(){
+  const fc=document.getElementById('flashcard');
+  fc.classList.toggle('flipped');
+  document.getElementById('fcRatingRow').style.display = fc.classList.contains('flipped') ? 'flex' : 'none';
+}
+function rateCard(rating){
+  const fc=document.getElementById('flashcard');
+  fc.classList.remove('flipped');
+  document.getElementById('fcRatingRow').style.display='none';
+  // show brief feedback
+  const msgs={again:'Will resurface in < 1 min',hard:'See you tomorrow',good:'Next in 3 days 🎉',easy:'Excellent! 7 days'};
+  alert(msgs[rating]||'');
+}
+
+/* ═══════════════════════
+   PRACTICE MCQ
+═══════════════════════ */
+let practiceCorrectKey = 'B';
+function selectPracticeOpt(el, type){
+  if(document.getElementById('nextBtn').disabled===false) return; // already answered
+  document.querySelectorAll('.q-opt').forEach(o=>{o.classList.remove('selected');});
+  el.classList.add(type);
+  document.getElementById('rationaleDrawer').classList.add('show');
+  document.getElementById('nextBtn').disabled=false;
+  const xp=document.getElementById('qXpGain');
+  xp.style.display='inline';
+  xp.textContent = type==='correct' ? '+8 XP 🎉' : 'Incorrect';
+  xp.style.color = type==='correct' ? 'var(--amber)' : 'var(--red)';
+}
+function toggleFlag(){
+  const btn=document.getElementById('flagBtn');
+  btn.classList.toggle('flagged');
+  btn.innerHTML = btn.classList.contains('flagged')
+    ? '<svg viewBox="0 0 24 24" width="12" height="12" fill="currentColor"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/></svg> Flagged'
+    : '<svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></svg> Flag';
+}
+function nextQuestion(){
+  document.querySelectorAll('.q-opt').forEach(o=>{o.classList.remove('correct','wrong','selected');});
+  document.getElementById('rationaleDrawer').classList.remove('show');
+  document.getElementById('nextBtn').disabled=true;
+  document.getElementById('qXpGain').style.display='none';
+}
+function prevQuestion(){ nextQuestion(); }
+
+/* ═══════════════════════
+   MOCK EXAM
+═══════════════════════ */
+function selectMockOpt(el){
+  document.querySelectorAll('.mock-opt').forEach(o=>o.classList.remove('selected'));
+  el.classList.add('selected');
+}
+// Build question grid
+const qGrid=document.getElementById('mockQGrid');
+if(qGrid){
+  for(let i=1;i<=100;i++){
+    const cell=document.createElement('div');
+    cell.className='mq-cell'+(i<=22?' ans':'')+(i===23?' current':'')+ (i===7||i===15||i===19?' flagged':'');
+    cell.textContent=i;
+    qGrid.appendChild(cell);
+  }
+}
+
+/* ═══════════════════════
+   MOCK EXAM TIMER
+═══════════════════════ */
+let mockSec=7114;
+function updateMockTimer(){
+  const h=Math.floor(mockSec/3600);
+  const m=Math.floor((mockSec%3600)/60);
+  const s=mockSec%60;
+  const el=document.getElementById('mockTimer');
+  if(!el) return;
+  el.textContent=`${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+  if(mockSec<600) el.classList.add('warning'); else el.classList.remove('warning');
+  if(mockSec>0) mockSec--;
+}
+setInterval(updateMockTimer,1000);
+
+/* ═══════════════════════
+   PRACTICE TIMER
+═══════════════════════ */
+let practSec=1124;
+function updatePracticeTimer(){
+  const m=Math.floor(practSec/60);
+  const s=practSec%60;
+  const el=document.getElementById('practiceTimer');
+  if(el) el.textContent=`${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+  if(practSec>0) practSec--;
+}
+setInterval(updatePracticeTimer,1000);
+
+/* ═══════════════════════
+   DASHBOARD COUNTDOWN
+═══════════════════════ */
+function updateDashCountdown(){
+  const target=new Date('2025-08-15T08:00:00');
+  const diff=target-new Date();
+  if(diff<=0) return;
+  const d=Math.floor(diff/86400000);
+  const h=Math.floor((diff%86400000)/3600000);
+  const m=Math.floor((diff%3600000)/60000);
+  const s=Math.floor((diff%60000)/1000);
+  const set=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=String(v).padStart(2,'0');};
+  set('hcd-d',d);set('hcd-h',h);set('hcd-m',m);set('hcd-s',s);
+}
+setInterval(updateDashCountdown,1000);
+updateDashCountdown();
+
+/* ═══════════════════════
+   STREAK CALENDAR
+═══════════════════════ */
+function buildStreakCal(){
+  const grid=document.getElementById('streakCalGrid');
+  if(!grid) return;
+  const types=['','done','done','miss','done','done','done','done','done','done','done','done','done','done','done','fire','fire','fire','fire','fire','fire','fire','fire','fire','fire','fire','fire','fire','fire','fire','today'];
+  const today=16;
+  for(let d=1;d<=31;d++){
+    const cell=document.createElement('div');
+    let t=d>today?'':types[d]||'';
+    cell.className='scd'+(t?' '+t:'');
+    cell.textContent=d<=today?(t==='fire'?'🔥':t==='done'?'✓':t==='miss'?'✗':t==='today'?'★':d):d;
+    grid.appendChild(cell);
+  }
+}
+buildStreakCal();
+
+/* ═══════════════════════
+   DAILY CHALLENGE TOGGLE
+═══════════════════════ */
+function toggleCheck(el){
+  el.classList.toggle('done');
+}
+
+/* ═══════════════════════
+   SETTINGS SECTIONS
+═══════════════════════ */
+function setSettingsSection(el,id){
+  document.querySelectorAll('.settings-nav-item').forEach(i=>i.classList.remove('active'));
+  el.classList.add('active');
+  ['profile','exam','notifications','display','plan'].forEach(s=>{
+    const sec=document.getElementById('ss-'+s);
+    if(sec) sec.style.display = s===id ? 'block':'none';
+  });
+}
+
+/* ═══════════════════════
+   LEADERBOARD TABS
+═══════════════════════ */
+function setLbTab(el,type){
+  document.querySelectorAll('.lb-tab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+}
+</script>
+</body>
+</html>
