@@ -16,6 +16,8 @@ export default function DashboardHome() {
   });
   const [tutors, setTutors] = useState<any[]>([]);
 
+  const [countdown, setCountdown] = useState({ d: 0, h: 0, m: 0, s: 0 });
+
   useEffect(() => {
     const fetchData = async () => {
       const { data: { user } } = await supabase.auth.getUser();
@@ -51,6 +53,28 @@ export default function DashboardHome() {
     fetchData();
   }, [supabase]);
 
+  // Real-time countdown to exam
+  useEffect(() => {
+    const target = new Date('2026-08-15T08:00:00').getTime();
+    const updateCountdown = () => {
+      const now = new Date().getTime();
+      const diff = target - now;
+      if (diff <= 0) {
+        setCountdown({ d: 0, h: 0, m: 0, s: 0 });
+        return;
+      }
+      setCountdown({
+        d: Math.floor(diff / 86400000),
+        h: Math.floor((diff % 86400000) / 3600000),
+        m: Math.floor((diff % 3600000) / 60000),
+        s: Math.floor((diff % 60000) / 1000),
+      });
+    };
+    updateCountdown();
+    const interval = setInterval(updateCountdown, 1000);
+    return () => clearInterval(interval);
+  }, []);
+
   return (
     <div className="view active">
       {/* Welcome banner */}
@@ -66,10 +90,10 @@ export default function DashboardHome() {
         <div className="wb-right">
           <div className="wb-exam-label">⏳ Time to Exam</div>
           <div className="wb-countdown">
-            <div className="wb-cd-unit"><span className="wb-cd-num">47</span><span className="wb-cd-sub">Days</span></div>
-            <div className="wb-cd-unit"><span className="wb-cd-num">08</span><span className="wb-cd-sub">Hrs</span></div>
-            <div className="wb-cd-unit"><span className="wb-cd-num">33</span><span className="wb-cd-sub">Min</span></div>
-            <div className="wb-cd-unit"><span className="wb-cd-num">21</span><span className="wb-cd-sub">Sec</span></div>
+            <div className="wb-cd-unit"><span className="wb-cd-num">{String(countdown.d).padStart(2, '0')}</span><span className="wb-cd-sub">Days</span></div>
+            <div className="wb-cd-unit"><span className="wb-cd-num">{String(countdown.h).padStart(2, '0')}</span><span className="wb-cd-sub">Hrs</span></div>
+            <div className="wb-cd-unit"><span className="wb-cd-num">{String(countdown.m).padStart(2, '0')}</span><span className="wb-cd-sub">Min</span></div>
+            <div className="wb-cd-unit"><span className="wb-cd-num">{String(countdown.s).padStart(2, '0')}</span><span className="wb-cd-sub">Sec</span></div>
           </div>
         </div>
       </div>
