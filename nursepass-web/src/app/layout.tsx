@@ -15,7 +15,7 @@ const nunito = Nunito({
 });
 
 export const metadata: Metadata = {
-  title: 'NursePass Kenya — Pass Your NCK Exam, First Try',
+  title: 'NurseFiti Kenya — Pass Your NCK Exam, First Try',
   description: "Kenya's Smartest NCK Revision Platform. DigiProctor-identical mock exams, 5,000+ answered MCQs, and an AI study plan.",
 };
 

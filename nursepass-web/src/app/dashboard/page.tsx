@@ -158,6 +158,35 @@ export default function DashboardHome() {
           </ul>
         </div>
       </div>
+
+      {/* Expert Tutors Section */}
+      <div className="card" style={{ marginBottom: '20px' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+          <div className="card-title">Expert Tutors — Book a Session</div>
+          <span className="tag tag-amber" style={{ background: 'var(--amber-light)', color: 'var(--amber-dark)', padding: '4px 8px', borderRadius: 'var(--r-full)', fontSize: '11px', fontWeight: 700 }}>1-on-1 Help</span>
+        </div>
+        <p style={{ fontSize: '13px', color: 'var(--mid)', marginBottom: '16px' }}>Stuck on a challenging topic? Schedule a direct session with our vetted registered nurse educators.</p>
+        <div className="grid-3">
+          <div className="testi-card" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', border: '1px solid var(--border)', borderRadius: 'var(--r-sm)', padding: '16px' }}>
+            <div className="testi-avatar" style={{ width: '60px', height: '60px', fontSize: '20px', background: 'var(--teal-light)', color: 'var(--teal)', marginBottom: '12px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold' }}>SA</div>
+            <h3 style={{ fontSize: '15px', fontWeight: 800, color: 'var(--dark)', marginBottom: '4px' }}>Sr. Sarah Akinyi</h3>
+            <p style={{ fontSize: '12px', color: 'var(--mid)', marginBottom: '12px', lineHeight: 1.4 }}>Critical Care & Med-Surg</p>
+            <button className="btn btn-outline btn-sm" style={{ width: '100%', justifyContent: 'center' }}>Schedule Session</button>
+          </div>
+          <div className="testi-card" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', border: '1px solid var(--border)', borderRadius: 'var(--r-sm)', padding: '16px' }}>
+            <div className="testi-avatar" style={{ width: '60px', height: '60px', fontSize: '20px', background: '#DFFBF1', color: '#0F6E56', marginBottom: '12px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold' }}>DK</div>
+            <h3 style={{ fontSize: '15px', fontWeight: 800, color: 'var(--dark)', marginBottom: '4px' }}>Dr. David Kiprop</h3>
+            <p style={{ fontSize: '12px', color: 'var(--mid)', marginBottom: '12px', lineHeight: 1.4 }}>Community Health & Research</p>
+            <button className="btn btn-outline btn-sm" style={{ width: '100%', justifyContent: 'center' }}>Schedule Session</button>
+          </div>
+          <div className="testi-card" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', border: '1px solid var(--border)', borderRadius: 'var(--r-sm)', padding: '16px' }}>
+            <div className="testi-avatar" style={{ width: '60px', height: '60px', fontSize: '20px', background: 'var(--amber-light)', color: 'var(--amber-dark)', marginBottom: '12px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold' }}>RM</div>
+            <h3 style={{ fontSize: '15px', fontWeight: 800, color: 'var(--dark)', marginBottom: '4px' }}>RN Rose Mutisya</h3>
+            <p style={{ fontSize: '12px', color: 'var(--mid)', marginBottom: '12px', lineHeight: 1.4 }}>Maternal & Child Health</p>
+            <button className="btn btn-outline btn-sm" style={{ width: '100%', justifyContent: 'center' }}>Schedule Session</button>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
