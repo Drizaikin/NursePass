@@ -1,16 +1,42 @@
 "use client";
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
+import { createClient } from '@/utils/supabase/client';
 import './dashboard.css';
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
+  const router = useRouter();
+  const supabase = createClient();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [user, setUser] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      const { data: { user }, error } = await supabase.auth.getUser();
+      if (error || !user) {
+        router.push('/register');
+      } else {
+        setUser(user);
+        setLoading(false);
+      }
+    };
+    fetchUser();
+  }, [router, supabase]);
 
   const toggleSidebar = () => setSidebarOpen(!sidebarOpen);
   const closeSidebar = () => setSidebarOpen(false);
+
+  if (loading) {
+    return <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>Loading dashboard...</div>;
+  }
+
+  const fullName = user?.user_metadata?.full_name || 'Student';
+  const initial = fullName.charAt(0).toUpperCase();
+  const cadre = user?.user_metadata?.cadre || 'Nursing';
 
   const navLinks = [
     { href: '/dashboard', icon: <><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></>, label: 'Dashboard' },
@@ -27,14 +53,14 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           <div className="logo-mark">
             <svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
           </div>
-          <span className="logo-text" style={{ color: 'var(--white)' }}>Nurse<span>Pass</span></span>
+          <span className="logo-text" style={{ color: 'var(--white)' }}>Nurse<span>Fiti</span></span>
         </div>
 
         <div className="sidebar-user">
-          <div className="su-avatar">MW</div>
+          <div className="su-avatar">{initial}</div>
           <div>
-            <div className="su-name">Mercy Wanjiku</div>
-            <div className="su-cadre">KRCHN · August Exam</div>
+            <div className="su-name">{fullName}</div>
+            <div className="su-cadre">{cadre} · August Exam</div>
           </div>
         </div>
 
@@ -66,7 +92,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 <span className="streak-count">14</span>
                 <span style={{ fontSize: '12px', color: 'var(--amber)' }}>day streak</span>
               </div>
-              <div className="streak-label">Keep it up, Mercy!</div>
+              <div className="streak-label">Keep it up, {fullName.split(' ')[0]}!</div>
             </div>
           </div>
           <div className="streak-dots" style={{ marginTop: '10px' }}>
@@ -107,7 +133,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               <svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>
               <span className="notif-dot"></span>
             </button>
-            <div className="topbar-avatar">MW</div>
+            <div className="topbar-avatar">{initial}</div>
             <button className="icon-btn mobile-menu-btn" onClick={toggleSidebar}>
                <svg viewBox="0 0 24 24"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
             </button>
