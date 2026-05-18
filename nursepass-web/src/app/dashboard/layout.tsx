@@ -12,6 +12,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const supabase = createClient();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [user, setUser] = useState<any>(null);
+  const [profile, setProfile] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -21,6 +22,12 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         router.push('/register');
       } else {
         setUser(user);
+        
+        // Fetch user profile from Supabase
+        const { data: profileData } = await supabase.from('profiles').select('*').eq('id', user.id).single();
+        if (profileData) {
+          setProfile(profileData);
+        }
         setLoading(false);
       }
     };
@@ -89,7 +96,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             <span className="streak-fire">🔥</span>
             <div>
               <div style={{ display: 'flex', alignItems: 'baseline', gap: '4px' }}>
-                <span className="streak-count">14</span>
+                <span className="streak-count">{profile?.streak_days || 0}</span>
                 <span style={{ fontSize: '12px', color: 'var(--amber)' }}>day streak</span>
               </div>
               <div className="streak-label">Keep it up, {fullName.split(' ')[0]}!</div>
@@ -127,8 +134,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             <div className="breadcrumb"><strong>Dashboard</strong></div>
           </div>
           <div className="topbar-right">
-            <div className="topbar-streak-badge">🔥 14 days</div>
-            <div className="xp-badge">⚡ 2,840 XP</div>
+            <div className="topbar-streak-badge">🔥 {profile?.streak_days || 0} days</div>
+            <div className="xp-badge">⚡ {(profile?.xp_points || 0).toLocaleString()} XP</div>
             <button className="icon-btn" title="Notifications">
               <svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>
               <span className="notif-dot"></span>

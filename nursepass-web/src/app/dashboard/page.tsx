@@ -8,11 +8,11 @@ export default function DashboardHome() {
   const supabase = createClient();
   const [fullName, setFullName] = useState('Student');
   const [stats, setStats] = useState({
-    questions_answered: 1284,
-    average_score: 74,
-    study_time_minutes: 2280, // 38h
-    xp_points: 2840,
-    streak_days: 14
+    questions_answered: 0,
+    average_score: 0,
+    study_time_minutes: 0,
+    xp_points: 0,
+    streak_days: 0
   });
   const [tutors, setTutors] = useState<any[]>([]);
 
@@ -75,13 +75,20 @@ export default function DashboardHome() {
     return () => clearInterval(interval);
   }, []);
 
+  const getGreeting = () => {
+    const hour = new Date().getHours();
+    if (hour < 12) return 'Good morning';
+    if (hour < 18) return 'Good afternoon';
+    return 'Good evening';
+  };
+
   return (
     <div className="view active">
       {/* Welcome banner */}
       <div className="welcome-banner">
         <div className="wb-left">
-          <h2>Good morning, {fullName.split(' ')[0]} 👋</h2>
-          <p>You&apos;re on a {stats.streak_days}-day streak! Your exam is in <strong style={{ color: 'var(--amber)' }}>47 days</strong>. Stay consistent.</p>
+          <h2>{getGreeting()}, {fullName.split(' ')[0]} 👋</h2>
+          <p>You&apos;re on a {stats.streak_days}-day streak! Your exam is in <strong style={{ color: 'var(--amber)' }}>{countdown.d} days</strong>. Stay consistent.</p>
           <div className="wb-actions">
             <Link href="/dashboard/practice" className="btn btn-primary btn-sm" style={{ padding: '8px 16px', fontSize: '13px' }}>📚 Continue Practice</Link>
             <Link href="/dashboard/mockexam" className="btn btn-outline btn-sm" style={{ color: '#fff', borderColor: 'rgba(255,255,255,.4)', padding: '8px 16px', fontSize: '13px' }}>🎯 Take Mock Exam</Link>
