@@ -15,6 +15,8 @@ export default function DashboardHome() {
     streak_days: 0
   });
   const [tutors, setTutors] = useState<any[]>([]);
+  const [activities, setActivities] = useState<any[]>([]);
+  const [unitProgress, setUnitProgress] = useState<any[]>([]);
 
   const [countdown, setCountdown] = useState({ d: 0, h: 0, m: 0, s: 0 });
 
@@ -34,6 +36,18 @@ export default function DashboardHome() {
             xp_points: profile.xp_points || 0,
             streak_days: profile.streak_days || 0
           });
+        }
+
+        // Fetch activities
+        const { data: activitiesData } = await supabase.from('activities').select('*').eq('user_id', user.id).order('created_at', { ascending: false }).limit(5);
+        if (activitiesData && activitiesData.length > 0) {
+          setActivities(activitiesData);
+        }
+
+        // Fetch unit progress
+        const { data: progressData } = await supabase.from('unit_progress').select('*').eq('user_id', user.id).order('score_percentage', { ascending: true });
+        if (progressData && progressData.length > 0) {
+          setUnitProgress(progressData);
         }
       }
 
@@ -149,18 +163,28 @@ export default function DashboardHome() {
             <div className="dc-header">
               <div>
                 <div className="dc-label">⚡ Daily Challenge</div>
-                <div className="dc-title">Complete 30 Pharmacology MCQs</div>
+                <div className="dc-title">
+                  {stats.questions_answered === 0 
+                    ? "Start your first Practice MCQ session!" 
+                    : "Complete 30 Pharmacology MCQs"}
+                </div>
               </div>
-              <span className="dc-xp">+120 XP</span>
+              <span className="dc-xp">{stats.questions_answered === 0 ? "+50 XP" : "+120 XP"}</span>
             </div>
             <div className="dc-progress-row">
               <div className="prog-track" style={{ flex: 1 }}>
-                <div className="prog-fill prog-amber" style={{ width: '60%' }}></div>
+                <div className="prog-fill prog-amber" style={{ width: stats.questions_answered === 0 ? '0%' : `${Math.min((stats.questions_answered / 30) * 100, 100)}%` }}></div>
               </div>
-              <span className="dc-pct">18/30</span>
+              <span className="dc-pct">
+                {stats.questions_answered === 0 
+                  ? "0/10" 
+                  : `${Math.min(stats.questions_answered, 30)}/30`}
+              </span>
             </div>
             <div style={{ marginTop: '12px' }}>
-              <Link href="/dashboard/practice" className="btn btn-primary btn-sm" style={{ padding: '8px 16px', fontSize: '13px' }}>Continue Challenge →</Link>
+              <Link href="/dashboard/practice" className="btn btn-primary btn-sm" style={{ padding: '8px 16px', fontSize: '13px' }}>
+                {stats.questions_answered === 0 ? "Start Practice →" : "Continue Challenge →"}
+              </Link>
             </div>
           </div>
 
@@ -171,34 +195,43 @@ export default function DashboardHome() {
               </div>
               <div>
                 <div className="ai-rec-title">AI Study Recommendation</div>
-                <div className="ai-rec-sub">Based on your last 7 sessions</div>
+                <div className="ai-rec-sub">Based on your session history</div>
               </div>
             </div>
-            <div style={{ background: 'var(--amber-light)', border: '1px solid rgba(245,166,35,.3)', borderRadius: 'var(--r-sm)', padding: '12px 14px', marginBottom: '14px', fontSize: '13px', color: 'var(--dark)' }}>
-              <strong style={{ color: 'var(--amber-dark)' }}>⚡ Priority Focus:</strong> Pharmacology is your weakest unit at 54%. Spend 40 min on it today before your mock exam tomorrow.
-            </div>
-            <ul className="ai-unit-list">
-              <li className="ai-unit-row">
-                <div className="ai-unit-name">Pharmacology</div>
-                <div className="prog-track" style={{ width: '100px' }}><div className="prog-fill prog-red" style={{ width: '54%' }}></div></div>
-                <div className="ai-unit-pct ai-crit">54%</div>
-              </li>
-              <li className="ai-unit-row">
-                <div className="ai-unit-name">Psychiatric Nursing</div>
-                <div className="prog-track" style={{ width: '100px' }}><div className="prog-fill prog-amber" style={{ width: '62%' }}></div></div>
-                <div className="ai-unit-pct ai-warn">62%</div>
-              </li>
-              <li className="ai-unit-row">
-                <div className="ai-unit-name">Med-Surgical Nursing</div>
-                <div className="prog-track" style={{ width: '100px' }}><div className="prog-fill prog-green" style={{ width: '82%' }}></div></div>
-                <div className="ai-unit-pct ai-good">82%</div>
-              </li>
-              <li className="ai-unit-row">
-                <div className="ai-unit-name">Community Health</div>
-                <div className="prog-track" style={{ width: '100px' }}><div className="prog-fill prog-teal" style={{ width: '78%' }}></div></div>
-                <div className="ai-unit-pct ai-good">78%</div>
-              </li>
-            </ul>
+
+            {unitProgress.length === 0 ? (
+              <div style={{ padding: '8px 4px', fontSize: '13px', color: 'var(--mid)', lineHeight: 1.6 }}>
+                Welcome to NurseFiti! 🚀 Complete a practice test or take a mock exam so our AI can analyze your performance and recommend which medical units to focus on first.
+              </div>
+            ) : (
+              <>
+                <div style={{ background: 'var(--amber-light)', border: '1px solid rgba(245,166,35,.3)', borderRadius: 'var(--r-sm)', padding: '12px 14px', marginBottom: '14px', fontSize: '13px', color: 'var(--dark)' }}>
+                  <strong style={{ color: 'var(--amber-dark)' }}>⚡ Priority Focus:</strong> {unitProgress[0].unit_name} is your weakest unit at {unitProgress[0].score_percentage}%. Spend some time practicing this topic today.
+                </div>
+                <ul className="ai-unit-list">
+                  {unitProgress.map((unit) => {
+                    let progClass = 'prog-teal';
+                    let pctClass = 'ai-good';
+                    if (unit.score_percentage < 60) {
+                      progClass = 'prog-red';
+                      pctClass = 'ai-crit';
+                    } else if (unit.score_percentage < 75) {
+                      progClass = 'prog-amber';
+                      pctClass = 'ai-warn';
+                    }
+                    return (
+                      <li key={unit.id} className="ai-unit-row">
+                        <div className="ai-unit-name">{unit.unit_name}</div>
+                        <div className="prog-track" style={{ width: '100px' }}>
+                          <div className={`prog-fill ${progClass}`} style={{ width: `${unit.score_percentage}%` }}></div>
+                        </div>
+                        <div className={`ai-unit-pct ${pctClass}`}>{unit.score_percentage}%</div>
+                      </li>
+                    );
+                  })}
+                </ul>
+              </>
+            )}
           </div>
         </div>
 
@@ -208,33 +241,48 @@ export default function DashboardHome() {
             <div className="card-title">Recent Activity</div>
             <span className="tag tag-teal" style={{ background: 'var(--teal-light)', color: 'var(--teal)', padding: '4px 8px', borderRadius: 'var(--r-full)', fontSize: '11px', fontWeight: 700 }}>Last 7 days</span>
           </div>
-          <ul className="recent-activity">
-            <li className="activity-row">
-              <div className="act-icon si-teal"><svg viewBox="0 0 24 24" stroke="var(--teal)" fill="none" strokeWidth="2"><rect x="2" y="3" width="20" height="14" rx="2"/></svg></div>
-              <div><div className="act-text">Mock Exam — KRCHN Paper 1</div><div className="act-sub">2 hours ago · 100 questions</div></div>
-              <div className="act-score" style={{ color: 'var(--green)' }}>78%</div>
-            </li>
-            <li className="activity-row">
-              <div className="act-icon si-amber"><svg viewBox="0 0 24 24" stroke="var(--amber-dark)" fill="none" strokeWidth="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4z"/></svg></div>
-              <div><div className="act-text">Practice — Pharmacology</div><div className="act-sub">Yesterday · 45 questions</div></div>
-              <div className="act-score" style={{ color: 'var(--amber-dark)' }}>61%</div>
-            </li>
-            <li className="activity-row">
-              <div className="act-icon si-green"><svg viewBox="0 0 24 24" stroke="var(--green)" fill="none" strokeWidth="2"><rect x="2" y="4" width="20" height="16" rx="2"/></svg></div>
-              <div><div className="act-text">Flashcards — Midwifery Terms</div><div className="act-sub">2 days ago · 40 cards reviewed</div></div>
-              <div className="act-score" style={{ color: 'var(--teal)' }}>SRS</div>
-            </li>
-            <li className="activity-row">
-              <div className="act-icon si-teal"><svg viewBox="0 0 24 24" stroke="var(--teal)" fill="none" strokeWidth="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></div>
-              <div><div className="act-text">Group Challenge — KRCHN Cohort A</div><div className="act-sub">3 days ago · Ranked 2nd</div></div>
-              <div className="act-score" style={{ color: 'var(--amber)' }}>🏆 #2</div>
-            </li>
-            <li className="activity-row">
-              <div className="act-icon si-amber"><svg viewBox="0 0 24 24" stroke="var(--amber-dark)" fill="none" strokeWidth="2"><path d="M12 20h9"/></svg></div>
-              <div><div className="act-text">Practice — Community Health</div><div className="act-sub">4 days ago · 60 questions</div></div>
-              <div className="act-score" style={{ color: 'var(--green)' }}>80%</div>
-            </li>
-          </ul>
+          
+          {activities.length === 0 ? (
+            <div style={{ textAlign: 'center', padding: '40px 20px', color: 'var(--mid)' }}>
+              <div style={{ fontSize: '32px', marginBottom: '12px' }}>📭</div>
+              <p style={{ fontSize: '13px', lineHeight: 1.5 }}>No activity recorded yet. Start practicing or take a mock exam to see your history!</p>
+            </div>
+          ) : (
+            <ul className="recent-activity">
+              {activities.map((act) => {
+                let icon = (
+                  <div className="act-icon si-teal">
+                    <svg viewBox="0 0 24 24" stroke="var(--teal)" fill="none" strokeWidth="2"><rect x="2" y="3" width="20" height="14" rx="2"/></svg>
+                  </div>
+                );
+                if (act.activity_type === 'practice') {
+                  icon = (
+                    <div className="act-icon si-amber">
+                      <svg viewBox="0 0 24 24" stroke="var(--amber-dark)" fill="none" strokeWidth="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4z"/></svg>
+                    </div>
+                  );
+                } else if (act.activity_type === 'flashcards') {
+                  icon = (
+                    <div className="act-icon si-green">
+                      <svg viewBox="0 0 24 24" stroke="var(--green)" fill="none" strokeWidth="2"><rect x="2" y="4" width="20" height="16" rx="2"/></svg>
+                    </div>
+                  );
+                }
+                return (
+                  <li key={act.id} className="activity-row">
+                    {icon}
+                    <div>
+                      <div className="act-text">{act.topic}</div>
+                      <div className="act-sub">{act.detail_text}</div>
+                    </div>
+                    <div className="act-score" style={{ color: act.score_text?.includes('%') && parseInt(act.score_text) >= 75 ? 'var(--green)' : 'var(--amber-dark)' }}>
+                      {act.score_text}
+                    </div>
+                  </li>
+                );
+              })}
+            </ul>
+          )}
         </div>
       </div>
 
