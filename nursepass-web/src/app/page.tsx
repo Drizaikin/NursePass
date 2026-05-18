@@ -20,8 +20,8 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
-    // Countdown to Aug 2025
-    const target = new Date('2025-08-15T08:00:00').getTime();
+    // Countdown to Aug 2026
+    const target = new Date('2026-08-15T08:00:00').getTime();
     const updateCountdown = () => {
       const now = new Date().getTime();
       const diff = target - now;
@@ -52,7 +52,7 @@ export default function Home() {
     <>
       {/* TOPBAR */}
       <div className="topbar">
-        🎓 Next NCK Exam: <span>August 2025</span> — Registration closes July 15 &nbsp;|&nbsp; Use code <span>FIRSTTRY</span> for 20% off your first plan
+        🎓 Next NCK Exam: <span>August 2026</span> — Registration closes July 15 &nbsp;|&nbsp; Use code <span>FIRSTTRY</span> for 20% off your first plan
       </div>
 
       {/* NAV */}
@@ -63,7 +63,7 @@ export default function Home() {
               <div className="logo-mark">
                 <svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
               </div>
-              <span className="logo-text">Nurse<span>Pass</span></span>
+              <span className="logo-text">Nurse<span>Fiti</span></span>
             </Link>
             <ul className="nav-links">
               <li><Link href="#features">Features</Link></li>
@@ -74,8 +74,8 @@ export default function Home() {
               <li><Link href="#faq">FAQ</Link></li>
             </ul>
             <div className="nav-cta">
-              <Link href="/dashboard" style={{ fontSize: '14px', fontWeight: 700, color: 'var(--teal)', textDecoration: 'none' }}>Log in</Link>
-              <Link href="#pricing" className="btn btn-dark" style={{ padding: '10px 20px', fontSize: '13px' }}>Start Free Trial</Link>
+              <Link href="/register" style={{ fontSize: '14px', fontWeight: 700, color: 'var(--teal)', textDecoration: 'none' }}>Log in</Link>
+              <Link href="/register" className="btn btn-dark" style={{ padding: '10px 20px', fontSize: '13px' }}>Start Free Trial</Link>
             </div>
             <button className="nav-toggle" onClick={() => setMobileMenuOpen(!mobileMenuOpen)} aria-label="Toggle menu">
               <span></span><span></span><span></span>
@@ -89,7 +89,7 @@ export default function Home() {
           <Link href="#experts" onClick={() => setMobileMenuOpen(false)}>Expert Tutors</Link>
           <Link href="#pricing" onClick={() => setMobileMenuOpen(false)}>Pricing</Link>
           <Link href="#faq" onClick={() => setMobileMenuOpen(false)}>FAQ</Link>
-          <Link href="#pricing" style={{ color: 'var(--teal)' }} onClick={() => setMobileMenuOpen(false)}>Start Free Trial →</Link>
+          <Link href="/register" style={{ color: 'var(--teal)' }} onClick={() => setMobileMenuOpen(false)}>Start Free Trial →</Link>
         </div>
       </nav>
 
@@ -103,9 +103,9 @@ export default function Home() {
                 <span>Kenya&apos;s Smartest NCK Revision Platform</span>
               </div>
               <h1>Pass Your NCK Exam.<br/><em>First Try.</em></h1>
-              <p className="hero-sub">DigiProctor-identical mock exams, 5,000+ answered MCQs, and an AI study plan built around your exam date — for KRCHN, BScN & Higher Diploma nurses.</p>
+              <p className="hero-sub">DigiProctor-identical mock exams, 5,000+ answered MCQs, and an AI study plan built around your exam date — for KRCHN and BScN nurses.</p>
               <div className="hero-actions">
-                <Link href="#pricing" className="btn btn-primary">Start for Free →</Link>
+                <Link href="/register" className="btn btn-primary">Start for Free →</Link>
                 <Link href="#mockexam" className="btn btn-outline">See Mock Exam</Link>
               </div>
               <div className="hero-stats">
@@ -127,14 +127,10 @@ export default function Home() {
                     <span>🎓 BScN — Degree</span>
                     <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="6 3 11 8 6 13"/></svg>
                   </button>
-                  <button className={`cadre-btn ${activeCadre === 2 ? 'active' : ''}`} onClick={() => setActiveCadre(2)}>
-                    <span>⚕️ Higher Diploma — Specialties</span>
-                    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="6 3 11 8 6 13"/></svg>
-                  </button>
                 </div>
                 <div className="cadre-divider"></div>
                 <div className="countdown-wrapper">
-                  <p className="countdown-label">⏳ Time to August 2025 Exam</p>
+                  <p className="countdown-label">⏳ Time to August 2026 Exam</p>
                   <div className="countdown">
                     <div className="countdown-unit"><span className="countdown-num">{String(countdown.d).padStart(2, '0')}</span><span className="countdown-sub">Days</span></div>
                     <div className="countdown-unit"><span className="countdown-num">{String(countdown.h).padStart(2, '0')}</span><span className="countdown-sub">Hrs</span></div>
@@ -198,7 +194,7 @@ export default function Home() {
             <div className="step-card fade-in visible step-connector">
               <div className="step-num">1</div>
               <h3>Choose Your Cadre & Exam Date</h3>
-              <p>Tell us whether you&apos;re sitting KRCHN, BScN, or a Higher Diploma speciality. We build your personalised study countdown from day one.</p>
+              <p>Tell us whether you&apos;re sitting KRCHN or BScN. We build your personalised study countdown from day one.</p>
             </div>
             <div className="step-card fade-in visible step-connector">
               <div className="step-num">2</div>
@@ -295,7 +291,7 @@ export default function Home() {
             <div className="mockexam-copy">
               <span className="section-label">Mock Exam</span>
               <h2>The only platform that truly replicates DigiProctor</h2>
-              <p>Exam anxiety is real — and the biggest cause is not knowing what the exam interface looks like. NursePass gives you the exact experience before the real thing.</p>
+              <p>Exam anxiety is real — and the biggest cause is not knowing what the exam interface looks like. NurseFiti gives you the exact experience before the real thing.</p>
               <div className="mockexam-features">
                 <div className="mf-row">
                   <div className="mf-dot"><svg viewBox="0 0 12 12"><polyline points="2 6 5 9 10 3"/></svg></div>
@@ -353,7 +349,7 @@ export default function Home() {
           <div className="section-header fade-in visible">
             <span className="section-label">Your Cadre Track</span>
             <h2>Built for your specific exam — not a generic course</h2>
-            <p>KRCHN, BScN, and Higher Diploma nurses sit completely different exams. We have dedicated content for each.</p>
+            <p>KRCHN and BScN nurses sit completely different exams. We have dedicated content for each.</p>
           </div>
           <div className="cadre-tracks">
             <div className="cadre-track krchn fade-in visible">
@@ -366,7 +362,7 @@ export default function Home() {
                 <li><svg viewBox="0 0 16 16"><polyline points="3 8 6 11 13 5"/></svg>2,500+ KRCHN-specific MCQs</li>
                 <li><svg viewBox="0 0 16 16"><polyline points="3 8 6 11 13 5"/></svg>Paper 1 & Paper 2 full mocks</li>
                 <li><svg viewBox="0 0 16 16"><polyline points="3 8 6 11 13 5"/></svg>Community Health, Med-Surg, Maternal & Child</li>
-                <li><svg viewBox="0 0 16 16"><polyline points="3 8 6 11 13 5"/></svg>Past papers 2015–2025</li>
+                <li><svg viewBox="0 0 16 16"><polyline points="3 8 6 11 13 5"/></svg>Past papers 2015–2026</li>
                 <li><svg viewBox="0 0 16 16"><polyline points="3 8 6 11 13 5"/></svg>Summarised revision notes per unit</li>
               </ul>
               <Link href="#pricing" className="cadre-link">Start KRCHN track →</Link>
@@ -383,26 +379,10 @@ export default function Home() {
                 <li><svg viewBox="0 0 16 16"><polyline points="3 8 6 11 13 5"/></svg>2,500+ BScN degree-level MCQs</li>
                 <li><svg viewBox="0 0 16 16"><polyline points="3 8 6 11 13 5"/></svg>Paper 1 & Paper 2 full mocks</li>
                 <li><svg viewBox="0 0 16 16"><polyline points="3 8 6 11 13 5"/></svg>Research, Management, Advanced Clinical</li>
-                <li><svg viewBox="0 0 16 16"><polyline points="3 8 6 11 13 5"/></svg>Past papers 2015–2025</li>
+                <li><svg viewBox="0 0 16 16"><polyline points="3 8 6 11 13 5"/></svg>Past papers 2015–2026</li>
                 <li><svg viewBox="0 0 16 16"><polyline points="3 8 6 11 13 5"/></svg>Distinct from KRCHN — harder rationales</li>
               </ul>
               <Link href="#pricing" className="cadre-link">Start BScN track →</Link>
-            </div>
-
-            <div className="cadre-track hd fade-in visible">
-              <div className="cadre-track-icon">
-                <svg viewBox="0 0 24 24"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
-              </div>
-              <h3>Higher Diploma</h3>
-              <div className="cadre-sub">Speciality Nursing — Critical Care, Oncology, Renal & More</div>
-              <ul>
-                <li><svg viewBox="0 0 16 16"><polyline points="3 8 6 11 13 5"/></svg>Critical Care (ICU/HDU) — Live now</li>
-                <li><svg viewBox="0 0 16 16"><polyline points="3 8 6 11 13 5"/></svg>Oncology Nursing — Live now</li>
-                <li><svg viewBox="0 0 16 16"><polyline points="3 8 6 11 13 5"/></svg>Renal / Nephrology — Coming Q3</li>
-                <li><svg viewBox="0 0 16 16"><polyline points="3 8 6 11 13 5"/></svg>Psychiatric / Mental Health — Coming Q3</li>
-                <li><svg viewBox="0 0 16 16"><polyline points="3 8 6 11 13 5"/></svg>Peri-Operative Nursing — Coming Q4</li>
-              </ul>
-              <Link href="#pricing" className="cadre-link">Start Higher Diploma track →</Link>
             </div>
           </div>
         </div>
@@ -632,7 +612,7 @@ export default function Home() {
         <div className="container">
           <div className="section-header fade-in visible">
             <span className="section-label">Student Stories</span>
-            <h2>Nurses who passed with NursePass</h2>
+            <h2>Nurses who passed with NurseFiti</h2>
           </div>
           <div className="testi-grid">
             <div className="testi-card fade-in visible">
@@ -640,7 +620,7 @@ export default function Home() {
               <p className="testi-text">&quot;The DigiProctor mock exam changed everything for me. I sat my actual exam and it felt familiar. I wasn&apos;t anxious — I had done this before. Passed Paper 1 and Paper 2 first attempt.&quot;</p>
               <div className="testi-author">
                 <div className="testi-avatar" style={{ background: 'var(--teal-light)', color: 'var(--teal)' }}>MW</div>
-                <div><div className="testi-name">Mercy W.</div><div className="testi-meta">KRCHN — Nairobi, 2025</div></div>
+                <div><div className="testi-name">Mercy W.</div><div className="testi-meta">KRCHN — Nairobi, 2026</div></div>
               </div>
             </div>
             <div className="testi-card fade-in visible">
@@ -648,7 +628,7 @@ export default function Home() {
               <p className="testi-text">&quot;I had failed once before and was really nervous. The AI kept pushing me to drill Pharmacology which was my weakest unit. I went from 52% to 78% in three weeks. Passed comfortably.&quot;</p>
               <div className="testi-author">
                 <div className="testi-avatar" style={{ background: 'var(--amber-light)', color: 'var(--amber-dark)' }}>JK</div>
-                <div><div className="testi-name">James K.</div><div className="testi-meta">BScN Resitter — Mombasa, 2025</div></div>
+                <div><div className="testi-name">James K.</div><div className="testi-meta">BScN Resitter — Mombasa, 2026</div></div>
               </div>
             </div>
             <div className="testi-card fade-in visible">
@@ -689,11 +669,11 @@ export default function Home() {
             </div>
             <div className={`faq-item fade-in visible ${openFaq === 4 ? 'open' : ''}`} onClick={() => toggleFaq(4)}>
               <div className="faq-q">Are the questions from actual past papers?<svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg></div>
-              <div className="faq-a">Our question bank includes NCK past paper questions from 2015 to 2025, plus 2,000+ original questions written by registered nurse educators to match the current NCK syllabus and exam style.</div>
+              <div className="faq-a">Our question bank includes NCK past paper questions from 2015 to 2026, plus 2,000+ original questions written by registered nurse educators to match the current NCK syllabus and exam style.</div>
             </div>
             <div className={`faq-item fade-in visible ${openFaq === 5 ? 'open' : ''}`} onClick={() => toggleFaq(5)}>
               <div className="faq-q">Is there a mobile app?<svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg></div>
-              <div className="faq-a">Our Android app is coming in Q3 2025. In the meantime, the website is fully mobile-optimised — add it to your home screen from Chrome for an app-like experience. iOS app is planned for Q4.</div>
+              <div className="faq-a">Our Android app is coming in Q3 2026. In the meantime, the website is fully mobile-optimised — add it to your home screen from Chrome for an app-like experience. iOS app is planned for Q4.</div>
             </div>
           </div>
         </div>
@@ -724,9 +704,9 @@ export default function Home() {
                 <div className="logo-mark">
                   <svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
                 </div>
-                <span className="logo-text" style={{ color: 'var(--white)' }}>Nurse<span style={{ color: 'var(--amber)' }}>Pass</span></span>
+                <span className="logo-text" style={{ color: 'var(--white)' }}>Nurse<span style={{ color: 'var(--amber)' }}>Fiti</span></span>
               </div>
-              <p>Kenya&apos;s intelligent NCK exam preparation platform. Built for KRCHN, BScN, and Higher Diploma nurses — by nurses who&apos;ve been there.</p>
+              <p>Kenya&apos;s intelligent NCK exam preparation platform. Built for KRCHN and BScN nurses — by nurses who&apos;ve been there.</p>
               <span className="footer-mpesa">✓ M-Pesa Accepted</span>
             </div>
             <div className="footer-col">
@@ -734,7 +714,6 @@ export default function Home() {
               <ul>
                 <li><Link href="#">KRCHN Track</Link></li>
                 <li><Link href="#">BScN Track</Link></li>
-                <li><Link href="#">Higher Diploma</Link></li>
                 <li><Link href="#">Mock Exams</Link></li>
                 <li><Link href="#">Analytics</Link></li>
               </ul>
@@ -742,7 +721,7 @@ export default function Home() {
             <div className="footer-col">
               <h4>Resources</h4>
               <ul>
-                <li><Link href="#">NCK Exam Guide 2025</Link></li>
+                <li><Link href="#">NCK Exam Guide 2026</Link></li>
                 <li><Link href="#">NCK Syllabus</Link></li>
                 <li><Link href="#">How to Register for NCK</Link></li>
                 <li><Link href="#">Past Papers (Free)</Link></li>
@@ -761,7 +740,7 @@ export default function Home() {
             </div>
           </div>
           <div className="footer-bottom">
-            <p>© 2025 NursePass Kenya. All rights reserved. Not affiliated with the Nursing Council of Kenya.</p>
+            <p>© 2026 NurseFiti Kenya. All rights reserved. Not affiliated with the Nursing Council of Kenya.</p>
             <div className="social-links">
               <Link href="#" className="social-link" aria-label="Facebook">f</Link>
               <Link href="#" className="social-link" aria-label="Twitter">𝕏</Link>
