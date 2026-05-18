@@ -44,7 +44,11 @@ body.dark {
 .su-name { font-size: 13px; font-weight: 700; color: #fff; }
 .su-cadre { font-size: 11px; color: rgba(255,255,255,.45); margin-top: 1px; }
 
-.sidebar-nav { padding: 12px 0; flex: 1; overflow-y: auto; }
+.sidebar-nav { padding: 12px 0; flex: 1; overflow-y: auto; background-color: transparent !important; }
+.sidebar-nav::-webkit-scrollbar { width: 6px; }
+.sidebar-nav::-webkit-scrollbar-track { background: transparent; }
+.sidebar-nav::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.15); border-radius: var(--r-full); }
+.sidebar-nav::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.25); }
 .nav-section-label { font-size: 10px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: rgba(255,255,255,.3); padding: 8px 20px 4px; }
 .sidebar-nav a { display: flex; align-items: center; gap: 12px; padding: 11px 20px; font-size: 13px; font-weight: 600; color: var(--sidebar-text); transition: all .18s; border-left: 3px solid transparent; cursor: pointer; text-decoration: none; }
 .sidebar-nav a svg { width: 17px; height: 17px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; flex-shrink: 0; opacity: .75; }

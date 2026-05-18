@@ -7,16 +7,73 @@ import { createClient } from '@/utils/supabase/client';
 export default function DashboardHome() {
   const supabase = createClient();
   const [fullName, setFullName] = useState('Student');
+  const [stats, setStats] = useState({
+    questions_answered: 1284,
+    average_score: 74,
+    study_time_minutes: 2280, // 38h
+    xp_points: 2840,
+    streak_days: 14
+  });
+  const [tutors, setTutors] = useState<any[]>([]);
+
+  const [countdown, setCountdown] = useState({ d: 0, h: 0, m: 0, s: 0 });
 
   useEffect(() => {
-    const fetchUser = async () => {
+    const fetchData = async () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (user) {
         setFullName(user.user_metadata?.full_name || 'Student');
+        
+        // Fetch profile stats
+        const { data: profile } = await supabase.from('profiles').select('*').eq('id', user.id).single();
+        if (profile) {
+          setStats({
+            questions_answered: profile.questions_answered || 0,
+            average_score: profile.average_score || 0,
+            study_time_minutes: profile.study_time_minutes || 0,
+            xp_points: profile.xp_points || 0,
+            streak_days: profile.streak_days || 0
+          });
+        }
+      }
+
+      // Fetch tutors
+      const { data: tutorsData } = await supabase.from('tutors').select('*').eq('is_active', true).limit(3);
+      if (tutorsData && tutorsData.length > 0) {
+        setTutors(tutorsData);
+      } else {
+        // Fallback dummy tutors
+        setTutors([
+          { id: 1, title: 'Sr. Sarah Akinyi', specialty: 'Critical Care & Med-Surg', avatar_initials: 'SA' },
+          { id: 2, title: 'Dr. David Kiprop', specialty: 'Community Health & Research', avatar_initials: 'DK' },
+          { id: 3, title: 'RN Rose Mutisya', specialty: 'Maternal & Child Health', avatar_initials: 'RM' }
+        ]);
       }
     };
-    fetchUser();
+    fetchData();
   }, [supabase]);
+
+  // Real-time countdown to exam
+  useEffect(() => {
+    const target = new Date('2026-08-15T08:00:00').getTime();
+    const updateCountdown = () => {
+      const now = new Date().getTime();
+      const diff = target - now;
+      if (diff <= 0) {
+        setCountdown({ d: 0, h: 0, m: 0, s: 0 });
+        return;
+      }
+      setCountdown({
+        d: Math.floor(diff / 86400000),
+        h: Math.floor((diff % 86400000) / 3600000),
+        m: Math.floor((diff % 3600000) / 60000),
+        s: Math.floor((diff % 60000) / 1000),
+      });
+    };
+    updateCountdown();
+    const interval = setInterval(updateCountdown, 1000);
+    return () => clearInterval(interval);
+  }, []);
 
   return (
     <div className="view active">
@@ -24,7 +81,7 @@ export default function DashboardHome() {
       <div className="welcome-banner">
         <div className="wb-left">
           <h2>Good morning, {fullName.split(' ')[0]} 👋</h2>
-          <p>You&apos;re on a 14-day streak! Your exam is in <strong style={{ color: 'var(--amber)' }}>47 days</strong>. Stay consistent.</p>
+          <p>You&apos;re on a {stats.streak_days}-day streak! Your exam is in <strong style={{ color: 'var(--amber)' }}>47 days</strong>. Stay consistent.</p>
           <div className="wb-actions">
             <Link href="/dashboard/practice" className="btn btn-primary btn-sm" style={{ padding: '8px 16px', fontSize: '13px' }}>📚 Continue Practice</Link>
             <Link href="/dashboard/mockexam" className="btn btn-outline btn-sm" style={{ color: '#fff', borderColor: 'rgba(255,255,255,.4)', padding: '8px 16px', fontSize: '13px' }}>🎯 Take Mock Exam</Link>
@@ -33,10 +90,10 @@ export default function DashboardHome() {
         <div className="wb-right">
           <div className="wb-exam-label">⏳ Time to Exam</div>
           <div className="wb-countdown">
-            <div className="wb-cd-unit"><span className="wb-cd-num">47</span><span className="wb-cd-sub">Days</span></div>
-            <div className="wb-cd-unit"><span className="wb-cd-num">08</span><span className="wb-cd-sub">Hrs</span></div>
-            <div className="wb-cd-unit"><span className="wb-cd-num">33</span><span className="wb-cd-sub">Min</span></div>
-            <div className="wb-cd-unit"><span className="wb-cd-num">21</span><span className="wb-cd-sub">Sec</span></div>
+            <div className="wb-cd-unit"><span className="wb-cd-num">{String(countdown.d).padStart(2, '0')}</span><span className="wb-cd-sub">Days</span></div>
+            <div className="wb-cd-unit"><span className="wb-cd-num">{String(countdown.h).padStart(2, '0')}</span><span className="wb-cd-sub">Hrs</span></div>
+            <div className="wb-cd-unit"><span className="wb-cd-num">{String(countdown.m).padStart(2, '0')}</span><span className="wb-cd-sub">Min</span></div>
+            <div className="wb-cd-unit"><span className="wb-cd-num">{String(countdown.s).padStart(2, '0')}</span><span className="wb-cd-sub">Sec</span></div>
           </div>
         </div>
       </div>
@@ -48,31 +105,31 @@ export default function DashboardHome() {
             <svg viewBox="0 0 24 24" stroke="var(--teal)"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4z"/></svg>
           </div>
           <div className="stat-label">Questions Answered</div>
-          <div className="stat-value">1,284</div>
-          <div className="stat-delta delta-up">↑ 52 today</div>
+          <div className="stat-value">{stats.questions_answered.toLocaleString()}</div>
+          <div className="stat-delta delta-up">↑ keep going</div>
         </div>
         <div className="stat-card">
           <div className="stat-icon si-amber">
             <svg viewBox="0 0 24 24" stroke="var(--amber-dark)"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
           </div>
           <div className="stat-label">Average Score</div>
-          <div className="stat-value">74%</div>
-          <div className="stat-delta delta-up">↑ 3% this week</div>
+          <div className="stat-value">{stats.average_score}%</div>
+          <div className="stat-delta delta-up">↑ solid accuracy</div>
         </div>
         <div className="stat-card">
           <div className="stat-icon si-green">
             <svg viewBox="0 0 24 24" stroke="var(--green)"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
           </div>
           <div className="stat-label">Study Time</div>
-          <div className="stat-value">38h</div>
-          <div className="stat-delta delta-up">↑ 2.5h today</div>
+          <div className="stat-value">{Math.floor(stats.study_time_minutes / 60)}h {stats.study_time_minutes % 60}m</div>
+          <div className="stat-delta delta-up">↑ dedicated learner</div>
         </div>
         <div className="stat-card">
           <div className="stat-icon si-red">
             <svg viewBox="0 0 24 24" stroke="var(--red)"><circle cx="12" cy="8" r="7"/><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"/></svg>
           </div>
           <div className="stat-label">XP Points</div>
-          <div className="stat-value">2,840</div>
+          <div className="stat-value">{stats.xp_points.toLocaleString()}</div>
           <div className="stat-delta delta-up">↑ Level 12</div>
         </div>
       </div>
@@ -181,25 +238,19 @@ export default function DashboardHome() {
           <span className="tag tag-amber" style={{ background: 'var(--amber-light)', color: 'var(--amber-dark)', padding: '4px 8px', borderRadius: 'var(--r-full)', fontSize: '11px', fontWeight: 700 }}>1-on-1 Help</span>
         </div>
         <p style={{ fontSize: '13px', color: 'var(--mid)', marginBottom: '16px' }}>Stuck on a challenging topic? Schedule a direct session with our vetted registered nurse educators.</p>
-        <div className="grid-3">
-          <div className="testi-card" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', border: '1px solid var(--border)', borderRadius: 'var(--r-sm)', padding: '16px' }}>
-            <div className="testi-avatar" style={{ width: '60px', height: '60px', fontSize: '20px', background: 'var(--teal-light)', color: 'var(--teal)', marginBottom: '12px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold' }}>SA</div>
-            <h3 style={{ fontSize: '15px', fontWeight: 800, color: 'var(--dark)', marginBottom: '4px' }}>Sr. Sarah Akinyi</h3>
-            <p style={{ fontSize: '12px', color: 'var(--mid)', marginBottom: '12px', lineHeight: 1.4 }}>Critical Care & Med-Surg</p>
-            <button className="btn btn-outline btn-sm" style={{ width: '100%', justifyContent: 'center' }}>Schedule Session</button>
-          </div>
-          <div className="testi-card" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', border: '1px solid var(--border)', borderRadius: 'var(--r-sm)', padding: '16px' }}>
-            <div className="testi-avatar" style={{ width: '60px', height: '60px', fontSize: '20px', background: '#DFFBF1', color: '#0F6E56', marginBottom: '12px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold' }}>DK</div>
-            <h3 style={{ fontSize: '15px', fontWeight: 800, color: 'var(--dark)', marginBottom: '4px' }}>Dr. David Kiprop</h3>
-            <p style={{ fontSize: '12px', color: 'var(--mid)', marginBottom: '12px', lineHeight: 1.4 }}>Community Health & Research</p>
-            <button className="btn btn-outline btn-sm" style={{ width: '100%', justifyContent: 'center' }}>Schedule Session</button>
-          </div>
-          <div className="testi-card" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', border: '1px solid var(--border)', borderRadius: 'var(--r-sm)', padding: '16px' }}>
-            <div className="testi-avatar" style={{ width: '60px', height: '60px', fontSize: '20px', background: 'var(--amber-light)', color: 'var(--amber-dark)', marginBottom: '12px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold' }}>RM</div>
-            <h3 style={{ fontSize: '15px', fontWeight: 800, color: 'var(--dark)', marginBottom: '4px' }}>RN Rose Mutisya</h3>
-            <p style={{ fontSize: '12px', color: 'var(--mid)', marginBottom: '12px', lineHeight: 1.4 }}>Maternal & Child Health</p>
-            <button className="btn btn-outline btn-sm" style={{ width: '100%', justifyContent: 'center' }}>Schedule Session</button>
-          </div>
+        <div className="grid-3" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px' }}>
+          {tutors.map((tutor, idx) => {
+            const bgColors = ['var(--teal-light)', '#DFFBF1', 'var(--amber-light)'];
+            const textColors = ['var(--teal)', '#0F6E56', 'var(--amber-dark)'];
+            return (
+              <div key={tutor.id} className="testi-card" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', border: '1px solid var(--border)', borderRadius: 'var(--r-sm)', padding: '16px' }}>
+                <div className="testi-avatar" style={{ width: '60px', height: '60px', fontSize: '20px', background: bgColors[idx % 3], color: textColors[idx % 3], marginBottom: '12px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold' }}>{tutor.avatar_initials}</div>
+                <h3 style={{ fontSize: '15px', fontWeight: 800, color: 'var(--dark)', marginBottom: '4px' }}>{tutor.title}</h3>
+                <p style={{ fontSize: '12px', color: 'var(--mid)', marginBottom: '12px', lineHeight: 1.4 }}>{tutor.specialty}</p>
+                <button className="btn btn-outline btn-sm" style={{ width: '100%', justifyContent: 'center', border: `1.5px solid ${textColors[idx % 3]}`, color: textColors[idx % 3] }}>Schedule Session</button>
+              </div>
+            );
+          })}
         </div>
       </div>
     </div>
