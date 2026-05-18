@@ -1,14 +1,29 @@
 "use client";
 
 import Link from 'next/link';
+import { useState, useEffect } from 'react';
+import { createClient } from '@/utils/supabase/client';
 
 export default function DashboardHome() {
+  const supabase = createClient();
+  const [fullName, setFullName] = useState('Student');
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        setFullName(user.user_metadata?.full_name || 'Student');
+      }
+    };
+    fetchUser();
+  }, [supabase]);
+
   return (
     <div className="view active">
       {/* Welcome banner */}
       <div className="welcome-banner">
         <div className="wb-left">
-          <h2>Good morning, Mercy 👋</h2>
+          <h2>Good morning, {fullName.split(' ')[0]} 👋</h2>
           <p>You&apos;re on a 14-day streak! Your exam is in <strong style={{ color: 'var(--amber)' }}>47 days</strong>. Stay consistent.</p>
           <div className="wb-actions">
             <Link href="/dashboard/practice" className="btn btn-primary btn-sm" style={{ padding: '8px 16px', fontSize: '13px' }}>📚 Continue Practice</Link>
