@@ -27,7 +27,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           <div className="logo-mark">
             <svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
           </div>
-          <span className="logo-text" style={{ color: 'var(--white)' }}>Nurse<span>Pass</span></span>
+          <span className="logo-text" style={{ color: 'var(--white)' }}>Nurse<span>Fiti</span></span>
         </div>
 
         <div className="sidebar-user">
